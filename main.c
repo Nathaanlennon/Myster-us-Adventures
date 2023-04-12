@@ -119,27 +119,7 @@ void flip_card(Square **board, int size){
 }
 
 int main(){
-    //A SUPPR AVANT FINALISATION DU PROJET
-    #ifdef WIN32
-    SetConsoleOutputCP(65001);
-    #endif
+    printf("issou");
 
-
-    srand(time(NULL));
-
-    ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
-    Square** board = create_board(BOARD_SIZE);
-
-    ////////////        AFFICHAGE        ////////////
-    print_board(board, BOARD_SIZE);
-
-    //test de flip_card
-    for(int i = 0; i<5; i++){
-        flip_card(board, BOARD_SIZE);
-        print_board(board, BOARD_SIZE);
-    }
-
-    ////////////        LIBERATION DE LA MEMOIRE        ////////////
-    free_board(board, BOARD_SIZE);
     return 0;
 }
