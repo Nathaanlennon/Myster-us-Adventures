@@ -125,9 +125,10 @@ int main() {
     srand(time(NULL));
 
     // ATTENTION SUPPR ÇA AVAIT DE RENDRE, C'EST POUR LES PROBLEMES DE COMPATIBILITÉ WINDOWS DE CLION
-#ifdef WIN32
+    #ifdef WIN32
     SetConsoleOutputCP(65001);
-#endif
+    #endif
+    //fin
 
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
     Square **board = create_board(BOARD_SIZE);
