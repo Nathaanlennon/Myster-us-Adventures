@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <windows.h> // TODO:ATTENTION SUPPR ÇA AVAIT DE RENDRE, C'EST POUR LES PROBLEMES DE COMPATIBILITÉ WINDOWS DE CLION
+//#include <windows.h> // TODO:ATTENTION SUPPR ÇA AVAIT DE RENDRE, C'EST POUR LES PROBLEMES DE COMPATIBILITÉ WINDOWS DE CLION
 
 #define BOARD_SIZE 5
 
@@ -219,9 +219,9 @@ int main() {
     srand(time(NULL));
 
     // TODO:ATTENTION SUPPR ÇA AVAIT DE RENDRE, C'EST POUR LES PROBLEMES DE COMPATIBILITÉ WINDOWS DE CLION
-#ifdef WIN32
+/*#ifdef WIN32
     SetConsoleOutputCP(65001);
-#endif
+#endif*/
     title_screen();
 
     return 0;
