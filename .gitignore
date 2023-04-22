@@ -50,5 +50,7 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-cmake-build-debug/est
+cmake-build-debug/
 main
+.idea/
+test
