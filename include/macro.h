@@ -4,17 +4,25 @@
 #define HIDDEN "\u25A6"
 #define EMPTY "\u25A2"
 #define START "\u25A7"
+
 #define STICK "\u222B"
 #define DAGGER "\u2197"
 #define SWORD "\u2694"
 #define SPELLBOOK "\u2A70"
+
 #define CHEST "\u229F"
+#define PORTAL "\u2145"
+#define TOTEM "\u25EE"
+
 #define TROLL "\u2689"
 #define BASILISK "\u267E"
 #define ZOMBIE "\u2623"
 #define HARPY "\u29EC"
-#define PORTAL "\u2145"
-#define TOTEM "\u25EE"
+
+#define RANGER "\u21A3"
+#define WARRIOR "\u26C9"
+#define THIEF "\u26B7"
+#define MAGICIAN "\u22C7"
 
 #define C_BLK "\033[30m" // Caractère noir
 #define C_RED "\033[31m" // Caractère rouge

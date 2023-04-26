@@ -15,8 +15,14 @@ typedef struct {
 
 typedef struct {
     int number;
-    char name[10];
+    char symbol[10];
     int weapon;
+    int start_x; //case de départ attribuée abscisse
+    int start_y; //case de départ attribuée ordonnée
+    int position_x; //position durant le tour abscicsse
+    int position_y; //position durant le tour abscicsse
+    char name[];
+    //color mais j'ai la flemme pour l'instant
 } Player;
 
 
@@ -90,6 +96,17 @@ void free_board(Square **board, int size) {
     free(board); //libération du plateau
 }
 
+//intialisation d'un joueur
+void init_player(Player* player, int num, char* name, char* symbol, int start_x, int start_y) {
+    player->number = num;
+    strcpy(player->name, name);
+    strcpy(player->symbol, symbol);
+    player->start_x = start_x;
+    player->start_y = start_y;
+    player->position_x = player->start_x;
+    player->position_y = player->start_y;
+}
+
 //Afficher le plateau
 void print_board(Square **board, int boardSize) {
     for (int i = 0; i < boardSize; i++) {
@@ -104,6 +121,23 @@ void print_board(Square **board, int boardSize) {
     }
 }
 
+void print_boardPlayer(Square **board, int boardSize, Player* activePlayer) { //version 2 avec position joueur actif ajouté
+    for (int i = 0; i < boardSize; i++) {
+        for (int j = 0; j < boardSize; j++) {
+            if(activePlayer->position_x == i && activePlayer->position_y == j){
+                printf("%s ", activePlayer->symbol);
+            }
+            else if (board[i][j].flipped == 1) {
+                printf("%s ", board[i][j].symbol);
+            } else {
+                printf("%s ", HIDDEN);
+            }
+        }
+        printf("\n");
+    }
+}
+
+//FONCTION TEST A UPDATER EN TANT QUE FONCTION DEPLACEMENT (pas encore adpatée avec les joueurs)
 void flip_card(Square **board, int boardSize, int gridSize) {
     int x, y;
     do {
@@ -114,9 +148,7 @@ void flip_card(Square **board, int boardSize, int gridSize) {
     board[x][y].flipped = 1;
 }
 
-
 int main() {
-
     srand(time(NULL));
 
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
@@ -125,6 +157,14 @@ int main() {
     ////////////        AFFICHAGE        ////////////
     print_board(board, BOARD_SIZE);
 
+    ////////////        CREATION PERSONNAGE        ////////////
+    Player ranger;
+    init_player(&ranger, 1, "Bob", RANGER, 0, BOARD_SIZE-3);
+
+    printf("\n\n");
+    print_boardPlayer(board, BOARD_SIZE, &ranger);
+
+    ////////////        TEST GAMEPLAY        ////////////
     //test de flip_card
     for (int i = 0; i < 5; i++) {
         flip_card(board, BOARD_SIZE, GRID_SIZE);
