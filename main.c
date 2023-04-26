@@ -4,7 +4,7 @@
 #include <time.h>
 
 #include "include/macro.h"
-//#include "usual.c"
+#include "usual.c"
 
 // Structure pour une case du plateau de jeu
 typedef struct {
@@ -143,6 +143,7 @@ void flip_card(Square **board, int boardSize, int gridSize) {
     do {
         printf("Retourner quelle carte ? donner coordonnées x, y : ");
         scanf("%d, %d", &x, &y);
+        flush_input_buffer();
     } while (x < boardSize-1-gridSize || x > gridSize || y < 1 || y > boardSize-1-gridSize);
 
     board[x][y].flipped = 1;
@@ -164,12 +165,13 @@ int main() {
     printf("\n\n");
     print_boardPlayer(board, BOARD_SIZE, &ranger);
 
+    waiting();
     ////////////        TEST GAMEPLAY        ////////////
     //test de flip_card
-    for (int i = 0; i < 5; i++) {
+    /* for (int i = 0; i < 5; i++) {
         flip_card(board, BOARD_SIZE, GRID_SIZE);
         print_board(board, BOARD_SIZE);
-    }
+    } */
 
     ////////////        LIBERATION DE LA MEMOIRE        ////////////
     free_board(board, BOARD_SIZE);
