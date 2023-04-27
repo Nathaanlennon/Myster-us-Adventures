@@ -206,7 +206,7 @@ int main() {
 
     print_boardPlayer(board, BOARD_SIZE, &ranger);
 
-    ////////////        TEST GAMEPLAY        ////////////
+    ////////////        WIP TEST GAMEPLAY        ////////////
     for (int i = 0; i < 5; i++) {
         weapon_choice(&ranger);
         move(board, BOARD_SIZE, GRID_SIZE, &ranger, monsters,treasures);
