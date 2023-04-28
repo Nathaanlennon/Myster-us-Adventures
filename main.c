@@ -95,6 +95,20 @@ Square **create_board(int size) {
     return board;
 }
 
+void background(int i, int j){
+    for (int k = 0; k<i;k++){
+        for (int l=0;l<j;l++){
+            printf("%s ",B_BLK);
+        }
+        printf("\n");
+    }
+    cursor_move('A', 10);
+    waiting();
+    clear_all();
+    waiting();
+}
+
+
 //libération de la mémoire allouée pour le plateau
 void free_board(Square **board, int size) {
     for (int i = 0; i < size; i++) {
@@ -178,9 +192,11 @@ void title_screen() {
     }
 }
 
+
 int main() {
     srand(time(NULL));
-
+    background(9, 15);
+    waiting();
     title_screen();
 
     return 0;
