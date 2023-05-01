@@ -98,9 +98,13 @@ void free_board(Square **board, int size) {
 }
 
 //intialisation d'un joueur
-void init_player(Player* player, int num, char* name, char* symbol, int start_x, int start_y) {
+void init_player(Player* player, int num, char* symbol, int start_x, int start_y) {
     player->number = num;
-    strcpy(player->name, name);
+
+    printf("Entrer un prénom pour le joueur %d : ", player->number);
+    scanf("%s", player->name);
+    flush_input_buffer(); //au cas où le joueur entre un nom avec des espaces
+
     strcpy(player->symbol, symbol);
     player->start_x = start_x;
     player->start_y = start_y;
@@ -227,8 +231,6 @@ void move(Square **board, int boardSize, int gridSize, Player* activePlayer, cha
     print_board(board, boardSize, activePlayer);
 }
 
-
-
 int main() {
     srand(time(NULL));
 
@@ -244,7 +246,8 @@ int main() {
 
     ////////////        CREATION PERSONNAGE        ////////////
     Player ranger;
-    init_player(&ranger, 1, "Bob", RANGER, 0, BOARD_SIZE-3);
+    init_player(&ranger, 1, RANGER, 0, BOARD_SIZE-3);
+    printf("Hello %s !\n", ranger.name);
 
     print_board(board, BOARD_SIZE, &ranger);
 
