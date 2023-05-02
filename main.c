@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
+#include <windows.h> // ATTENTION SUPPR ÇA AVAIT DE RENDRE, C'EST POUR LES PROBLEMES DE COMPATIBILITÉ WINDOWS DE CLION
 
 #define BOARD_SIZE 5
 
@@ -30,8 +30,68 @@ typedef struct {
     int number;
     char name[10];
     Square progression[BOARD_SIZE][BOARD_SIZE]; //stocke la carte d'un joueur (gardant en mémoire les cases retournées)
+    int score;
 } Player;
 
+//Menu
+int menu(){
+    int bouton_d = 0;
+    int nombre_p = 0 ;
+    do {
+        printf("Bienvenue voyageur(s) ! \nSouhaitez-vous jouer ? Appuyez sur 1. \nSouhaitez-vous accéder aux scores ? Appuyez sur 2. ");
+        scanf("%d", &bouton_d);
+        printf("\n\n");
+    }while(bouton_d <=0 || bouton_d >= 3);
+
+
+    if(bouton_d == 1){
+        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
+        scanf("%d", &nombre_p);
+        printf("\n\n");
+        if(nombre_p<=1 || nombre_p>=5){
+            do{
+                printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
+                scanf("%d", &nombre_p);
+                printf("\n\n");
+            }while(nombre_p<=1 || nombre_p>=5);
+
+        }
+        printf("C'est parti ! Bonne chance à vous <3"); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
+        printf("\n\n");
+    }
+    else if(bouton_d == 2){
+        do {
+            printf("On a pas encore fait ... oops\nSouhaitez-vous jouer? Appuyez sur 1. ");
+            scanf("%d", &bouton_d);
+            printf("\n\n");
+        }while(bouton_d !=1);
+        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
+        scanf("%d", &nombre_p);
+        printf("\n\n");
+        if(nombre_p<=1 || nombre_p>=5){
+            do{
+                printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
+                scanf("%d", &nombre_p);
+                printf("\n\n");
+            }while(nombre_p<=1 || nombre_p>=5);
+
+        }
+        printf("C'est parti ! Bonne chance à vous <3"); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
+        printf("\n\n");
+    }
+    return nombre_p;
+}
+
+
+
+Player nb_player(){
+    Player f;
+    printf("Quel est votre nom ?\n");
+    scanf("%s", f.name);
+    f.number += 1; /// ATTENTION LE PREMIER F.NUMBER = 2 A NE PAS OUBLIER POUR PLUS TARD ////
+    printf("\n\n");
+
+}
 
 //Initialisation de la map aléatoire de symboles
 void initialize_map(Square **board, int size) {
@@ -120,11 +180,35 @@ void flip_card(Square **board, int size) {
 }
 
 
+void next_player(Square **board, int size){
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            printf("%s ", HIDDEN);
+        }
+        printf("\n");
+    }
+///Player à la place ini///
+}
+
+
 int main() {
 
     srand(time(NULL));
 
+    // ATTENTION SUPPR ÇA AVAIT DE RENDRE, C'EST POUR LES PROBLEMES DE COMPATIBILITÉ WINDOWS DE CLION
+#ifdef WIN32
+    SetConsoleOutputCP(65001);
+#endif
 
+    ///////////// MENU + NB DE PLAYER + NOM PLAYER ///////////
+    int i = 0;
+    int x = menu();
+    printf("%d", x);
+    printf("\n\n");
+    do{
+        nb_player();
+        i++;
+    }while(i<x);
 
 
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
