@@ -174,7 +174,7 @@ void launch_game() {
 
 void title_screen() {
     printf("%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
-    printf("\n\n\n%s[1] Let's play !\n[2] HightScore\n", C_WHT);
+    printf("\n\n\n%s[1] Let's play !\n[2] HighScore\n", C_WHT);
     int choice;
     while ((choice = getchar()) != EOF) {
         switch (choice) {
@@ -183,7 +183,7 @@ void title_screen() {
                 //TODO:fonction qui lance le jeu
                 break;
             case 50: // touche 2 pressée
-                //TODO:fonction qui lance higthscore
+                //TODO:fonction qui lance highs-core
                 break;
             default:
                 //aucun comportement prévu pour cette touche
