@@ -148,6 +148,25 @@ void print_board(Square **board, int boardSize, Player* activePlayer) { //versio
     printf("\n");
 }
 
+////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
+void print_board_admin(Square **board, int boardSize, Player* activePlayer) { //print board mais on voit toutes les cases
+    for (int i = 0; i < boardSize; i++) {
+        for (int j = 0; j < boardSize; j++) {
+            if(activePlayer->position_x == i && activePlayer->position_y == j){
+                printf("%s ", activePlayer->symbol);
+            }
+            else if(board[i][j].emptied == 1){
+                printf("%s ", EMPTY);
+            }
+            else {
+                printf("%s ", board[i][j].symbol);
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
 void weapon_choice(Player *player) {
     printf("Choisissez une arme pour vous préparer à un potentiel combat...\n");
     printf("1 : Torche\n2 : Bouclier réfléchissant\n3 : Hâche\n4 : Arc\n");
@@ -188,6 +207,7 @@ int fight(Player player, int monster) {
     return 0;
 }
 
+//Sous fonction pour gérer les découvertes d'armes antiques. Renvoie 1 si l'arme antique correspond à celle du joueur, 0 sinon.
 int event_ancient_weapon(Player* player, int ancientWeapon){
     printf("Vous avez découvert une arme antique !\n");
     if (player->number == ancientWeapon+1) {
@@ -201,62 +221,62 @@ int event_ancient_weapon(Player* player, int ancientWeapon){
     }
 }
 
-
-void event_manager(int x, int y, Square **board, int boardSize, int gridSize, Player* activePlayer, char monsters[4][10], char weapons[4][10], char treasures[5][10]) {
-    board[x][y].flipped = 1;
+//Fonction qui gère les rencontres de monstres/d'objets lors du déplacement. Renvoie 1 si le joueur peut continuer à se déplacer librement, 0 si le tour doit se finir
+int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, Player* activePlayer, char monsters[4][10], char weapons[4][10], char treasures[5][10]) {
+    board[*x][*y].flipped = 1;
     print_board(board, boardSize, activePlayer);
 
-    if(SymbolIdInArray(board[x][y], monsters, 4) != -1){
-        if(fight(*activePlayer, SymbolIdInArray(board[x][y], monsters, 4))){
+    if(SymbolIdInArray(board[*x][*y], monsters, 4) != -1){
+        if(fight(*activePlayer, SymbolIdInArray(board[*x][*y], monsters, 4))){
             printf("Combat gagné !\n");
-            board[x][y].emptied = 1;
-            activePlayer->position_x = x;
-            activePlayer->position_y = y;
+            board[*x][*y].emptied = 1;
         }
         else{
             printf("Combat perdu !\n");
-            for(int i = 1; i <= gridSize; i++){ //reset du plateau à la mort du joueur
-                for (int j = 1; j <= gridSize; j++){
-                    board[i][j].flipped = 0;
-                    board[i][j].emptied = 0;
+            return 0;
+        }
+    }
+
+    else if(SymbolIdInArray(board[*x][*y], weapons, 4) != -1){
+        event_ancient_weapon(activePlayer, SymbolIdInArray(board[*x][*y], weapons, 4));
+    }
+    else if(SymbolIdInArray(board[*x][*y], treasures, 5) != -1){
+        switch(SymbolIdInArray(board[*x][*y], treasures, 5)){
+            case 0:
+                printf("Vous avez découvert un trésor !\n");
+                activePlayer->treasure_found = 1;
+                break;
+
+            case 1:
+                printf("Vous avez découvert un portail magique de téléportation. Vous pouvez choisir n'importe quelle case encore cachée où vous téléporter. Mais avant cela...\n");
+                weapon_choice(activePlayer);
+                choose_coordinates(board, x, y, boardSize, gridSize);
+                return event_manager(x, y, board, boardSize, gridSize, activePlayer, monsters, weapons, treasures);
+
+            case 2:
+                printf("Vous avez découvert un totem de transmutation. Vous pouvez choisir n'importe quelle case encore cachée pour l'échanger avec le totem. Cela mettra fin à votre tour.\n");
+
+                int l,c;
+                choose_coordinates(board, &l, &c, boardSize, gridSize);
+                while((l == 1 && c == 3) || (l == 2 && c == 1) || (l == 5 && c == 2) || (l == 4 && c == 5)){ //interdiction de prendre les cases devant celles de départ
+                    printf("Coordonnées invalides.");
+                    choose_coordinates(board, &l, &c, boardSize, gridSize);
                 }
-            }
-            activePlayer->position_x = activePlayer->start_x;
-            activePlayer->position_y = activePlayer->start_y;
+
+                Square temp = board[*x][*y];
+                board[*x][*y] = board[l][c];
+                board[l][c] = temp;
+
+                printf("Poof!\n");
+                print_board(board, boardSize, activePlayer);
+                return 0;
         }
+
     }
-
-    else{
-        if(SymbolIdInArray(board[x][y], weapons, 4) != -1){
-            event_ancient_weapon(activePlayer, SymbolIdInArray(board[x][y], weapons, 4));
-        }
-        else if(SymbolIdInArray(board[x][y], treasures, 5) != -1){
-            switch(SymbolIdInArray(board[x][y], treasures, 5)){
-                case 0:
-                    printf("Vous avez découvert un trésor !\n");
-                    activePlayer->treasure_found = 1;
-                    break;
-
-                case 1:
-                    printf("Vous avez découvert un portail magique de téléportation. Vous pouvez choisir n'importe quelle case encore cachée où vous téléporter. Mais avant cela...\n");
-                    weapon_choice(activePlayer);
-                    choose_coordinates(board, &x, &y, boardSize, gridSize);
-                    event_manager(x, y, board, boardSize, gridSize, activePlayer, monsters, weapons, treasures);
-                    break;
-
-                case 2:
-                    printf("Vous avez découvert un totem de transmutation. Vous pouvez choisir n'importe quelle case encore cachée pour l'échanger avec celle sur laquelle vous êtes situé. Cela mettra fin à votre tour.\n");
-                    //WIP
-                    break;
-            }
-        }
-        activePlayer->position_x = x;
-        activePlayer->position_y = y;
-        //gérer les trucs spéciaux type armes, coffres etc
-    }
+    return 1;
 }
 
-//Déplacement d'un joueur (engagement d'un combat et déplacement nécessaire selon le résultat du combat)
+//Déplacement d'un joueur et évènements
 void move(Square **board, int boardSize, int gridSize, Player* activePlayer, char monsters[4][10], char weapons[4][10], char treasures[5][10]) {
     int x, y;
     choose_coordinates(board, &x, &y, boardSize, gridSize);
@@ -271,8 +291,21 @@ void move(Square **board, int boardSize, int gridSize, Player* activePlayer, cha
         choose_coordinates(board, &x, &y, boardSize, gridSize);
     }
 
-    event_manager(x, y, board, boardSize, gridSize, activePlayer, monsters, weapons, treasures);
-
+    if(event_manager(&x, &y, board, boardSize, gridSize, activePlayer, monsters, weapons, treasures)){
+        activePlayer->position_x = x;
+        activePlayer->position_y = y;
+    }
+    else{
+        for(int i = 1; i <= gridSize; i++){ //reset du plateau à la mort du joueur
+            for (int j = 1; j <= gridSize; j++){
+                board[i][j].flipped = 0;
+                board[i][j].emptied = 0;
+            }
+        }
+        activePlayer->position_x = activePlayer->start_x;
+        activePlayer->position_y = activePlayer->start_y;
+        printf("Vous revenez à votre position de départ...\n");
+    }
     print_board(board, boardSize, activePlayer);
 }
 
@@ -293,7 +326,10 @@ int main() {
     init_player(&ranger, 1, RANGER, 0, BOARD_SIZE-3);
     printf("Bienvenue %s !\n", ranger.name);
 
+    ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
+    print_board_admin(board, BOARD_SIZE, &ranger); //print board mais on voit toutes les cases
     printf("\n\n");
+
     print_board(board, BOARD_SIZE, &ranger);
 
     ////////////        WIP TEST GAMEPLAY        ////////////
