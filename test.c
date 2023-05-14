@@ -51,7 +51,8 @@ void draw(void* pUserData, Screen* pScreen){
     erase();
     switch (d->scene_type) {
         case MAIN_MENU:
-            draw_printf(d,"%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
+
+            //draw_printf(d,"%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
             break;
         case GAME:
             drawText(pScreen, d->player.x, d->player.y, "@", 1);

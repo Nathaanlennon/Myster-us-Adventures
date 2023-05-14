@@ -19,6 +19,8 @@ typedef enum {
 typedef struct {
     int x;
     int y;
+    short color;
+    short background;
 }Cursor;
 typedef struct Data {
     Screen* screen;

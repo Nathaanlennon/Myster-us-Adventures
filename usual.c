@@ -55,24 +55,17 @@ void waiting() {
     flush_input_buffer(); // efface la mémoire tampon pour éviter les fuites de mémoire d'input
 }
 
-int get_color(char *code) {
-    if (strcmp(code, C_BLK) == 0 || strcmp(code, B_BLK) == 0) {
-        return COLOR_BLACK;
-    } else if (strcmp(code, C_RED) == 0 || strcmp(code, B_RED) == 0) {
-        return COLOR_RED;
-    } else if (strcmp(code, C_GRN) == 0 || strcmp(code, B_GRN) == 0) {
-        return COLOR_GREEN;
-    } else if (strcmp(code, C_YEL) == 0 || strcmp(code, B_YEL) == 0) {
-        return COLOR_YELLOW;
-    } else if (strcmp(code, C_BLU) == 0 || strcmp(code, B_BLU) == 0) {
-        return COLOR_BLUE;
-    } else if (strcmp(code, C_MAG) == 0 || strcmp(code, B_MAG) == 0) {
-        return COLOR_MAGENTA;
-    } else if (strcmp(code, C_CYN) == 0 || strcmp(code, B_CYN) == 0) {
-        return COLOR_CYAN;
-    } else if (strcmp(code, C_WHT) == 0 || strcmp(code, B_WHT) == 0) {
-        return COLOR_WHITE;
+void set_color(Data *data, char *code) {
+    if (code[0] == '3') {
+        data->cursor.color = code[1] - '0';
+    } else if (code[0] == '4') {
+        data->cursor.background = code[1] - '0';
     }
+}
+
+int get_color_pair(Data *data) {
+    init_pair(9, data->cursor.color, data->cursor.background);
+    return 9;
 }
 
 void draw_printf(Data *data, const char *format, ...) {
@@ -81,10 +74,29 @@ void draw_printf(Data *data, const char *format, ...) {
 
     char buffer[1024];
     vsnprintf(buffer, sizeof(buffer), format, args);
+    char ansi[2];
+    char *str = malloc(strlen(buffer) * sizeof(char));
+    for (int i = 0; i < strlen(buffer); i++) {
+        if (buffer[i] == '\\') {
+            drawText(data->screen, data->cursor.x, data->cursor.y, str, get_color_pair(data));
+            if (buffer[i + 1] == 'n') {
+                data->cursor.x = 0;
+                data->cursor.y++;
+                i++;
+            }
+            else {
+                for (int j = 0; j < 2; j++) {
+                    ansi[j] = buffer[i + j + 5];
+                }
+                set_color(data, ansi);
+                i += 7;
+            }
+            free(str);
+            str = malloc(strlen(buffer) - i+1);
+        } else {
+            str[i] = buffer[i];
+        }
 
-
-    // code pour dessiner le texte avec curses
-    //drawText(data->screen, 0,0,buffer,1);
-
+    }
     va_end(args);
 }
