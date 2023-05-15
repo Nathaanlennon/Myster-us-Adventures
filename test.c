@@ -6,7 +6,6 @@
 #include "external/rgr/inc/libGameRGR2.h"
 
 
-
 //change de scène quand appelé
 void scene_changer(Data *data, Scene scene){
     data->scene_type = scene;
@@ -18,6 +17,10 @@ void init(void* pUserData, Screen* pScreen){
     d->scene_type = MAIN_MENU;
     d->player.x=0;
     d->player.y=0;
+    d->cursor.x = 0;
+    d->cursor.y=0;
+    d->cursor.color = 7;
+    d->cursor.background = 0;
 
     setColorPair(9, COLOR_CYAN, COLOR_MAGENTA);
 }
@@ -49,10 +52,11 @@ int update(void* pUserData, Screen* pScreen, unsigned long deltaTime){
 void draw(void* pUserData, Screen* pScreen){
     Data* d = pUserData;
     erase();
+    draw_printf(d,"%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
     switch (d->scene_type) {
         case MAIN_MENU:
-
-            //draw_printf(d,"%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
+            //drawText(pScreen, 0, 0, "chuech", 1);
+            
             break;
         case GAME:
             drawText(pScreen, d->player.x, d->player.y, "@", 1);

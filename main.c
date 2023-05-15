@@ -2,9 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
-#include "include/macro.h"
-#include "usual.c"
+#include "macro.h"
+#include "usual.h"
 
 // Structure pour une case du plateau de jeu
 typedef struct {

@@ -54,3 +54,4 @@ cmake-build-debug/
 main
 .idea/
 test
+build/
