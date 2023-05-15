@@ -316,26 +316,33 @@ int main() {
 
     char treasures[5][10] = {CHEST, PORTAL, TOTEM, TOTEM, CHEST}; //Symboles des objets spéciaux (coffres, totems, portails)
 
-    char monsters[4][10] = {ZOMBIE, BASILISK, TROLL,
-                            HARPY}; //Symboles des monstres
+    char monsters[4][10] = {ZOMBIE, BASILISK, TROLL, HARPY}; //Symboles des monstres
 
+    char adventurers[4][10] = {RANGER, THIEF, MAGICIAN, WARRIOR}; //Symboles des monstres
+
+    int start_x[4] = {0, 2, 4, 6};
+    int start_y[4] = {4, 0, 6, 2};
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
     Square **board = create_board(BOARD_SIZE, GRID_SIZE, monsters, weapons, treasures);
+
     ////////////        CREATION PERSONNAGE        ////////////
-    Player ranger;
-    init_player(&ranger, 1, RANGER, 0, BOARD_SIZE-3);
-    printf("Bienvenue %s !\n", ranger.name);
+
+    Player players[4];
+    for(int i=0; i<4; i++){
+        init_player(&players[i], i+1, adventurers[i], start_x[i], start_y[i]);
+        printf("Bienvenue %s !\n", players[i].name);
+    }
 
     ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
-    print_board_admin(board, BOARD_SIZE, &ranger); //print board mais on voit toutes les cases
+    print_board_admin(board, BOARD_SIZE, &players[0]); //print board mais on voit toutes les cases
     printf("\n\n");
 
-    print_board(board, BOARD_SIZE, &ranger);
+    print_board(board, BOARD_SIZE, &players[0]);
 
     ////////////        WIP TEST GAMEPLAY        ////////////
     for (int i = 0; i < 40; i++) {
-        weapon_choice(&ranger);
-        move(board, BOARD_SIZE, GRID_SIZE, &ranger, monsters, weapons, treasures);
+        weapon_choice(&players[0]);
+        move(board, BOARD_SIZE, GRID_SIZE, &players[0], monsters, weapons, treasures);
     }
 
     ////////////        LIBERATION DE LA MEMOIRE        ////////////
