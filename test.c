@@ -51,6 +51,9 @@ int update(void* pUserData, Screen* pScreen, unsigned long deltaTime){
 
 void draw(void* pUserData, Screen* pScreen){
     Data* d = pUserData;
+    //drawText(d->screen, 20,10, "Issou chuech", 1);
+    draw_printf2(d,"%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
+    /*
     erase();
     draw_printf(d,"%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
     switch (d->scene_type) {
@@ -63,7 +66,7 @@ void draw(void* pUserData, Screen* pScreen){
             break;
         case HIGHS_SCORE:
             break;
-    }
+    }*/
 
 }
 
@@ -81,7 +84,7 @@ int main() {
     cb.cbInit = &init;
     cb.cbFinish = &finish;
 
-    GameData *game = createGame(20,20, &d, &cb, 0);
+    GameData *game = createGame(50,50, &d, &cb, 0);
     gameLoop(game);
     return 0;
 }

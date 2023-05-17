@@ -63,9 +63,46 @@ void set_color(Data *data, char *code) {
     }
 }
 
-int get_color_pair(Data *data) {
-    init_pair(9, data->cursor.color, data->cursor.background);
-    return 9;
+short get_color_pair(Data *data) {
+    short id = (short) (data->cursor.color << 8 | data->cursor.background);
+    init_pair(id, data->cursor.color, data->cursor.background);
+    return id;
+}
+
+void draw_printf2(Data *data, const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    char buffer[200];
+    char ansi[2];
+    int j = 0;
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    char *str = malloc(strlen(buffer));
+    for (int i = 0; i < strlen(buffer); i++) {
+        if (buffer[i] == '\033') {
+            drawText(data->screen, data->cursor.x, data->cursor.y, str, get_color_pair(data));
+            ansi[0] = buffer[i + 2];
+            ansi[1] = buffer[i + 3];
+            set_color(data, ansi);
+            data->cursor.x += strlen(str);
+            free(str);
+            str = malloc(strlen(buffer));
+            j = 0;
+            i += 4;
+        } else if (buffer[i] == '\n') {
+            drawText(data->screen, data->cursor.x, data->cursor.y, str, get_color_pair(data));
+            data->cursor.x = 0;
+            data->cursor.y += 1;
+        } else {
+            str[j] = buffer[i];
+            j++;
+        }
+    }
+    drawText(data->screen, data->cursor.x, data->cursor.y, str, get_color_pair(data));
+    data->cursor.x += strlen(str);
+
+    free(str);
+    va_end(args);
 }
 
 void draw_printf(Data *data, const char *format, ...) {
@@ -78,20 +115,22 @@ void draw_printf(Data *data, const char *format, ...) {
     char *str = malloc(strlen(buffer) * sizeof(char));
     int k = 0;
     for (int i = 0; i < strlen(buffer); i++) {
-        if (buffer[i] <' ') {
-            char* str2 = malloc(strlen(str));
-            for (int l=0;l<strlen(str2);l++){
-                str2[l]=str[l];
+        if (buffer[i] < ' ') {
+            char *str2 = malloc(strlen(str));
+            for (int l = 0; l < strlen(str2); l++) {
+                str2[l] = str[l];
             }
-            drawText(data->screen, 10, 10, str, 1);
-            data->cursor.x = strlen(str);
+            drawText(data->screen, 20, 10, "Issou chuech", 1);
+            //drawText(data->screen, data->cursor.x, data->cursor.y, str, get_color_pair(data));
+            getchar();
+            int a = strlen(str);
+            printf("%d", a);
             free(str2);
             if (buffer[i] == '\n') {
                 data->cursor.x = 0;
                 data->cursor.y++;
                 i++;
-            }
-            else {
+            } else {
                 for (int j = 0; j < 2; j++) {
                     ansi[j] = buffer[i + j + 2];
                 }
@@ -99,20 +138,20 @@ void draw_printf(Data *data, const char *format, ...) {
                 i += 4;
             }
             free(str);
-            k=0;
-            str = malloc(strlen(buffer) - i+1);
+            k = 0;
+            str = malloc(strlen(buffer) - i + 1);
         } else {
             str[k] = buffer[i];
-            char a = *str+k;
+            char a = *str + k;
             k++;
         }
 
     }
-    if (buffer[strlen(buffer)-1]>=' '){
-        char* str2 = malloc(strlen(str));
-            for (int l=0;l<strlen(str2);l++){
-                str2[l]=str[l];
-            }
+    if (buffer[strlen(buffer) - 1] >= ' ') {
+        char *str2 = malloc(strlen(str));
+        for (int l = 0; l < strlen(str2); l++) {
+            str2[l] = str[l];
+        }
         drawText(data->screen, data->cursor.x, data->cursor.y, str, get_color_pair(data));
         data->cursor.x = strlen(str);
         free(str2);
