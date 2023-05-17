@@ -43,3 +43,21 @@ void waiting(){
     commentary("(Press 'enter' to continue..)");
     getchar();
 }
+
+void write_crash_report(const char* error_message) {
+    time_t current_time = time(NULL); //la fonction time renvoie nombre de secondes écoulées depuis le 01/01/1970 00:00:00
+    struct tm* time = localtime(&current_time); //conversion du timestamp précédent en date lisible selon le fuseau horaire local
+    char filename[50];
+    strftime(filename, sizeof(filename), "%Y-%m-%d_%H-%M-%S_crash_report.txt", time); //formatage du nom de fichier en année-mois-jour_heure-min-sec
+
+    FILE* file = fopen(filename, "w");
+    if (file == NULL) {
+        printf("Erreur lors de la création du rapport de crash.\n");
+    }
+
+    fprintf(file, "Date et heure du crash : %s", asctime(time));
+    fprintf(file, "Message d'erreur : %s\n", error_message);
+
+    fclose(file);
+    printf("Le rapport de crash a été créé : %s\n", filename);
+}
