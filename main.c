@@ -31,7 +31,7 @@ typedef struct {
 } Player;
 
 // Cherche l'indice du symbole de la case dans un tableau spécifié, renvoie l'indice de la première occurrence du symbole dans le tableau, sinon renvoie -1
-int SymbolIdInArray(Square square, char array[][10], int size){
+int SymbolIdInArray(Square square, const char array[][10], int size){
     for(int i = 0; i<size; i++){
         if(strcmp(square.symbol, array[i]) == 0)
             return i; // retourne le premier indice correspondant si trouvé dans le tableau
@@ -40,7 +40,7 @@ int SymbolIdInArray(Square square, char array[][10], int size){
 }
 
 //placement aléatoire de symboles
-void random_placement(Square **board, int gridSize, char tab[][10], int tabSize, char monsters[4][10]){
+void random_placement(Square **board, int gridSize, const char tab[][10], int tabSize, const char monsters[][10]){
 
     if(board == NULL){
         write_crash_report("pointer in parameters is NULL");
@@ -58,7 +58,7 @@ void random_placement(Square **board, int gridSize, char tab[][10], int tabSize,
 }
 
 //Initialisation de la map aléatoire de symboles
-void initialize_map(Square **board, int boardSize, int gridSize, char monsters[4][10], char weapons[4][10], char treasures[5][10]) {
+void initialize_map(Square **board, int boardSize, int gridSize, const char monsters[][10], const char weapons[][10], const char treasures[][10]) {
 
     if(board == NULL){
         write_crash_report("pointer in parameters is NULL");
@@ -69,14 +69,14 @@ void initialize_map(Square **board, int boardSize, int gridSize, char monsters[4
         for (int j = 0; j < boardSize; j++) {
             board[i][j].emptied = 0;
             board[i][j].flipped = 1;
-            if((i == 0 && j == boardSize-3) || (i == 2 && j == 0) || (i == boardSize-1 && j == 2) || (i == boardSize-3 && j == boardSize-1)){
-                strcpy(board[i][j].symbol, START);
+            if((i == 0 && j == 4) || (i == 2 && j == 0) || (i == 6 && j == 2) || (i == 4 && j == 6)){
+                strcpy(board[i][j].symbol, START); //placement des cases de départ
             }
             else if((i%(boardSize-1) == 0) || (j%(boardSize-1) == 0)){
-                strcpy(board[i][j].symbol, " ");
+                strcpy(board[i][j].symbol, " "); //vide autour des cases de départ
             }
             else{
-                strcpy(board[i][j].symbol, monsters[rand() % 4]);
+                strcpy(board[i][j].symbol, monsters[rand() % 4]); //placement des monstres
                 board[i][j].flipped = 0;
             }
         }
@@ -89,7 +89,7 @@ void initialize_map(Square **board, int boardSize, int gridSize, char monsters[4
 }
 
 //Création et initialisation d'un tableau 2D de structures Square <=> création d'un plateau de jeu
-Square **create_board(int boardSize, int gridSize, char monsters[4][10], char weapons[4][10], char treasures[5][10]) {
+Square **create_board(int boardSize, int gridSize, const char monsters[][10], const char weapons[][10], const char treasures[][10]) {
     Square **board = malloc(boardSize * sizeof(Square *));
     if (board == NULL) { //gérer si l'allocation a échoué
         write_crash_report("board memory allocation failed");
@@ -105,7 +105,7 @@ Square **create_board(int boardSize, int gridSize, char monsters[4][10], char we
         }
     }
 
-    initialize_map(board, boardSize, gridSize, monsters, weapons, treasures);
+    initialize_map(board, boardSize, gridSize, monsters, weapons, treasures); //placement des symboles dans le labyrinthe
 
     return board;
 }
@@ -148,7 +148,7 @@ void init_player(Player* player, int num, char* symbol, int start_x, int start_y
     player->treasure_found = 0;
 }
 
-void print_board(Square **board, int boardSize, Player* player) { //version 2 avec position joueur actif ajouté
+void print_board(Square **board, int boardSize, Player* player) { //afficher le plateau avec le joueur actif
 
     if(board == NULL || player == NULL){
         write_crash_report("pointer in parameters is NULL");
@@ -157,20 +157,20 @@ void print_board(Square **board, int boardSize, Player* player) { //version 2 av
 
     for (int i = 0; i < boardSize; i++) {
         for (int j = 0; j < boardSize; j++) {
-            if(player->position_x == i && player->position_y == j){
+            if(player->position_x == i && player->position_y == j){ //afichage du joueur selon sa position
                 printf("%s ", player->symbol);
             }
-            else if (board[i][j].flipped == 1){
-                if(board[i][j].emptied == 1){
+            else if (board[i][j].flipped == 1){ //afichages des cartes retournées
+                if(board[i][j].emptied == 1){ //monstres vaincus (cases vides)
                     printf("%s ", EMPTY);
                 }
                 else{
-                    printf("%s ", board[i][j].symbol);
+                    printf("%s ", board[i][j].symbol); //trésors et armes découverts
                 }
             }
 
             else {
-                printf("%s ", HIDDEN);
+                printf("%s ", HIDDEN); //cartes retournées
             }
         }
         printf("\n");
@@ -241,7 +241,7 @@ void choose_coordinates(Square **board, int* x, int* y, int boardSize, int gridS
     printf("\nChoisir une case en entrant les numéros de la ligne,colonne : ");
     scanf("%d,%d", x, y);
     flush_input_buffer();
-    if (*x < boardSize - 1 - gridSize || *x > gridSize || *y < boardSize - 1 - gridSize || *y > gridSize || board[*x][*y].flipped == 1) {
+    if (*x < boardSize - 1 - gridSize || *x > gridSize || *y < boardSize - 1 - gridSize || *y > gridSize || board[*x][*y].flipped == 1) { //vérification que les coordonnées saisies ne soint pas hors du tableau ou une case déjà vidée
         printf("Coordonnées invalides.");
         choose_coordinates(board, x, y, boardSize, gridSize);
     }
@@ -276,7 +276,7 @@ int event_ancient_weapon(Player* player, int ancientWeapon){
 }
 
 //Fonction qui gère les rencontres de monstres/d'objets lors du déplacement. Renvoie 1 si le joueur peut continuer à se déplacer librement, 0 si le tour doit se finir
-int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, Player* player, char monsters[4][10], char weapons[4][10], char treasures[5][10]) {
+int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, Player* player, const char monsters[][10], const char weapons[][10], const char treasures[][10]) {
 
     if(board == NULL || player == NULL || x == NULL ||y == NULL){
         write_crash_report("pointer in parameters is NULL");
@@ -290,22 +290,22 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
     int symbolIdWeapons = SymbolIdInArray(board[*x][*y], weapons, 4);
     int symbolIdTreasures = SymbolIdInArray(board[*x][*y], treasures, 5);
 
-    if(symbolIdMonsters != -1){
-        if(fight(*player, symbolIdMonsters)){
+    if(symbolIdMonsters != -1){ //si la carte retournée est un monstre, engager un combat
+        if(fight(*player, symbolIdMonsters)){ //le joueur a choisi la bonne arme contre ce monstre
             printf("Combat gagné !\n");
             board[*x][*y].emptied = 1;
         }
         else{
-            printf("Combat perdu !\n");
+            printf("Combat perdu !\n"); //le joueur n'a pas choisi la bonne arme contre ce monstre
             return 0;
         }
     }
 
-    else if(symbolIdWeapons != -1){
+    else if(symbolIdWeapons != -1){ //si la carte retournée est une arme antique, vérifier si elle appartient au joueur
         event_ancient_weapon(player, symbolIdWeapons);
     }
     else if(symbolIdTreasures != -1){
-        switch(symbolIdTreasures){
+        switch(symbolIdTreasures){ //si la carte retournée est un trésor/totem/portail
             case 0:
                 printf("Vous avez découvert un trésor !\n");
                 player->treasure_found = 1;
@@ -341,7 +341,7 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
 }
 
 //Déplacement d'un joueur et évènements
-void move(Square **board, int boardSize, int gridSize, Player* player, char monsters[4][10], char weapons[4][10], char treasures[5][10]) {
+void move(Square **board, int boardSize, int gridSize, Player* player, const char monsters[][10], const char weapons[][10], const char treasures[][10]) {
 
     if(board == NULL || player == NULL){
         write_crash_report("pointer in parameters is NULL");
@@ -350,7 +350,7 @@ void move(Square **board, int boardSize, int gridSize, Player* player, char mons
 
     int x, y;
 
-    choose_coordinates(board, &x, &y, boardSize, gridSize);
+    choose_coordinates(board, &x, &y, boardSize, gridSize); //saisie des coordonnées vers où se déplacer
     while(abs(x - player->position_x) > 1 //conditions pour n'avancer que d'une case adjacente à la position actuelle
             || abs(y - player->position_y) > 1
             || (x != player->position_x && y != player->position_y) //ne pas aller en diagonale
@@ -360,7 +360,7 @@ void move(Square **board, int boardSize, int gridSize, Player* player, char mons
         choose_coordinates(board, &x, &y, boardSize, gridSize);
     }
 
-    if(event_manager(&x, &y, board, boardSize, gridSize, player, monsters, weapons, treasures)){
+    if(event_manager(&x, &y, board, boardSize, gridSize, player, monsters, weapons, treasures)){ //déplacer le joueur sur la case choisie si il n'est pas mort
         player->position_x = x;
         player->position_y = y;
     }
@@ -371,7 +371,7 @@ void move(Square **board, int boardSize, int gridSize, Player* player, char mons
                 board[i][j].emptied = 0;
             }
         }
-        player->position_x = player->start_x;
+        player->position_x = player->start_x; //le joueur est remis à sa position de départ
         player->position_y = player->start_y;
         printf("Vous revenez à votre position de départ...\n");
     }
@@ -381,20 +381,21 @@ void move(Square **board, int boardSize, int gridSize, Player* player, char mons
 int main() {
     srand(time(NULL));
 
-    char weapons[4][10] = {STICK, SWORD, DAGGER, SPELLBOOK}; //Symboles des armes
-    char treasures[5][10] = {CHEST, PORTAL, TOTEM, TOTEM, CHEST}; //Symboles des objets spéciaux (coffres, totems, portails)
-    char monsters[4][10] = {ZOMBIE, BASILISK, TROLL, HARPY}; //Symboles des monstres
-    char adventurers[4][10] = {RANGER, THIEF, MAGICIAN, WARRIOR}; //Symboles des monstres
+    const char weapons[4][10] = {STICK, SWORD, DAGGER, SPELLBOOK}; //Symboles des armes
+    const char treasures[5][10] = {CHEST, PORTAL, TOTEM, TOTEM, CHEST}; //Symboles des objets spéciaux (coffres, totems, portails)
+    const char monsters[4][10] = {ZOMBIE, BASILISK, TROLL, HARPY}; //Symboles des monstres
+    const char adventurers[4][10] = {RANGER, THIEF, MAGICIAN, WARRIOR}; //Symboles des monstres
 
-    int start_x[4] = {0, 2, 4, 6};
-    int start_y[4] = {4, 0, 6, 2};
+    const int start_x[4] = {0, 2, 4, 6}; //abscisses des cases de départ de chaque joueur
+    const int start_y[4] = {4, 0, 6, 2}; //ordonnées des cases de départ de chaque joueur
+
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
     Square **board = create_board(BOARD_SIZE, GRID_SIZE, monsters, weapons, treasures);
 
     ////////////        CREATION PERSONNAGE        ////////////
 
-    Player players[4];
-    for(int i=0; i<4; i++){
+    Player players[4]; //liste des joueurs
+    for(int i=0; i<4; i++){  //initialisation de chaque joueur
         init_player(&players[i], i+1, adventurers[i], start_x[i], start_y[i]);
         printf("Bienvenue %s !\n", players[i].name);
     }
