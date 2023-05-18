@@ -125,7 +125,7 @@ void free_board(Square **board, int size) {
 }
 
 //intialisation d'un joueur
-void init_player(Player* player, int num, char* symbol, int start_x, int start_y) {
+void init_player(Player* player, int num, const char* symbol, int start_x, int start_y) {
 
     if(symbol == NULL || player == NULL){
         write_crash_report("pointer in parameters is NULL");

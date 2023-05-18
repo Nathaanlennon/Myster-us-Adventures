@@ -44,6 +44,7 @@ void waiting(){
     getchar();
 }
 
+//permet de créer un fichier de rapport de crash si il y en a un
 void write_crash_report(const char* error_message) {
     time_t current_time = time(NULL); //la fonction time renvoie nombre de secondes écoulées depuis le 01/01/1970 00:00:00
     struct tm* time = localtime(&current_time); //conversion du timestamp précédent en date lisible selon le fuseau horaire local
