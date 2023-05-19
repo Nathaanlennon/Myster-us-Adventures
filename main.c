@@ -5,19 +5,7 @@
 #include "include/macro.h"
 #include "include/usual.h"
 
-// Structure pour une case du plateau de jeu
-typedef struct {
-    char symbol[10];
-    int flipped; //variable booléenne qui vaut 1 si la case est retournée, 0 sinon
-    int emptied; //variable booléenne qui vaut 1 si la case est vidée (monstre battu/objet pris), 0 sinon
-} Square;
 
-typedef struct {
-    int number;
-    char name[10];
-    Square progression[BOARD_SIZE][BOARD_SIZE]; //stocke la carte d'un joueur (gardant en mémoire les cases retournées)
-    int score;
-} Player;
 
 // Cherche l'indice du symbole de la case dans un tableau spécifié, renvoie l'indice de la première occurrence du symbole dans le tableau, sinon renvoie -1
 int SymbolIdInArray(Square square, const char array[][10], int size){
@@ -462,7 +450,7 @@ void next_player(Square **board, int size){
 }
 
 int score(int cards, int monsters, int found){
-    printf("Voici votre score :\n%d cartes retournées\n%d monstres tués\n%d de trésors trouvés\n", cards, monster, found);
+    printf("Voici votre score :\n%d cartes retournées\n%d monstres tués\n%d de trésors trouvés\n", cards, monsters, found);
 }
 void launch_game(){
     const char weapons[4][10] = {STICK, SWORD, DAGGER, SPELLBOOK}; //Symboles des armes
@@ -473,16 +461,23 @@ void launch_game(){
     const int start_x[4] = {0, 2, 4, 6}; //abscisses des cases de départ de chaque joueur
     const int start_y[4] = {4, 0, 6, 2}; //ordonnées des cases de départ de chaque joueur
 
+    int cards = 0;
+
+    ///////////// MENU + NB DE PLAYER + NOM PLAYER ///////////
+    int i = 0;
+    int x = menu();
+    Player players[4]; //liste des joueurs
+    printf("%d", x);
+    printf("\n\n");
+    do{
+        init_player(&players[i], i+1, adventurers[i], start_x[i], start_y[i]);
+        printf("Bienvenue %s !\n", players[i].name);
+        i++;
+    }while(i<x);
+
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
     Square **board = create_board(BOARD_SIZE, GRID_SIZE, monsters, weapons, treasures);
 
-    ////////////        CREATION PERSONNAGE        ////////////
-
-    Player players[4]; //liste des joueurs
-    for(int i=0; i<4; i++){  //initialisation de chaque joueur
-        init_player(&players[i], i+1, adventurers[i], start_x[i], start_y[i]);
-        printf("Bienvenue %s !\n", players[i].name);
-    }
 
     ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
     print_board_admin(board, BOARD_SIZE, &players[0]); //print board mais on voit toutes les cases
@@ -495,7 +490,7 @@ void launch_game(){
         weapon_choice(&players[0]);
         turn(board, BOARD_SIZE, GRID_SIZE, &players[0], monsters, weapons, treasures);
     }
-
+    //score(cards, 1, 1);
     ////////////        LIBERATION DE LA MEMOIRE        ////////////
     free_board(board, BOARD_SIZE);
 }
