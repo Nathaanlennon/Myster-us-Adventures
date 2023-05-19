@@ -248,8 +248,8 @@ void choose_coordinates(Square **board, int* x, int* y, int boardSize, int gridS
 }
 
 // Vérifie que l'arme choisie est correcte par rapport à l'ennemi affronté. Renvoie 1 si oui, 0 sinon
-int fight(Player player, int monster) {
-    if (player.weapon == monster) {
+int fight(Player* player, int monster) {
+    if (player->weapon == monster) {
         return 1;
     }
     return 0;
@@ -291,7 +291,7 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
     int symbolIdTreasures = SymbolIdInArray(board[*x][*y], treasures, 5);
 
     if(symbolIdMonsters != -1){ //si la carte retournée est un monstre, engager un combat
-        if(fight(*player, symbolIdMonsters)){ //le joueur a choisi la bonne arme contre ce monstre
+        if(fight(player, symbolIdMonsters)){ //le joueur a choisi la bonne arme contre ce monstre
             printf("Combat gagné !\n");
             board[*x][*y].emptied = 1;
         }
@@ -322,7 +322,7 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
 
                 int l,c;
                 choose_coordinates(board, &l, &c, boardSize, gridSize);
-                while((l == 1 && c == 3) || (l == 2 && c == 1) || (l == 5 && c == 2) || (l == 4 && c == 5)){ //interdiction de prendre les cases devant celles de départ
+                while((l == 1 && c == 4) || (l == 2 && c == 1) || (l == 5 && c == 2) || (l == 4 && c == 5)){ //interdiction de prendre les cases devant celles de départ
                     printf("Coordonnées invalides.");
                     choose_coordinates(board, &l, &c, boardSize, gridSize);
                 }
@@ -340,21 +340,43 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
     return 1;
 }
 
-//Déplacement d'un joueur et évènements
-void move(Square **board, int boardSize, int gridSize, Player* player, const char monsters[][10], const char weapons[][10], const char treasures[][10]) {
+//Vérifie si la case entrée est vidée (monstre a été tué), est le bord de la map, ou est une case de départ). Renvoie 1 si elle est l'une de ces conditions, 0 sinon.
+int CheckSquareInvalid(Square square) {
+    return (square.flipped == 1 || strcmp(square.symbol, " ") == 0 || strcmp(square.symbol, START) == 0);
+}
+
+//reset du plateau à la mort du joueur ou si le joueur est bloqué
+void reset(Square **board, int boardSize, int gridSize, Player* player){
+    for(int i = 1; i <= gridSize; i++){
+        for (int j = 1; j <= gridSize; j++){
+            board[i][j].flipped = 0;
+            board[i][j].emptied = 0;
+        }
+    }
+    player->position_x = player->start_x; //le joueur est remis à sa position de départ
+    player->position_y = player->start_y;
+    player->treasure_found = 0;
+    player->ancientWeapon_found = 0;
+    printf("Vous revenez à votre position de départ...\n");
+    print_board(board, boardSize, player);
+}
+
+//Déplacement d'un joueur et évènements = tour entier d'un joueur. Ne s'arrête qu'une fois que le joueur meurt
+void turn(Square **board, int boardSize, int gridSize, Player* player, const char monsters[][10], const char weapons[][10], const char treasures[][10]) {
 
     if(board == NULL || player == NULL){
         write_crash_report("pointer in parameters is NULL");
         exit(1);
     }
 
-    int x, y;
+    weapon_choice(player);
 
+    int x, y;
     choose_coordinates(board, &x, &y, boardSize, gridSize); //saisie des coordonnées vers où se déplacer
     while(abs(x - player->position_x) > 1 //conditions pour n'avancer que d'une case adjacente à la position actuelle
-            || abs(y - player->position_y) > 1
-            || (x != player->position_x && y != player->position_y) //ne pas aller en diagonale
-            || (x == player->position_x && y == player->position_y))//ne pas faire du sur place
+          || abs(y - player->position_y) > 1
+          || (x != player->position_x && y != player->position_y) //ne pas aller en diagonale
+          || (x == player->position_x && y == player->position_y))//ne pas faire du sur place
     {
         printf("Coordonnées invalides.");
         choose_coordinates(board, &x, &y, boardSize, gridSize);
@@ -363,19 +385,21 @@ void move(Square **board, int boardSize, int gridSize, Player* player, const cha
     if(event_manager(&x, &y, board, boardSize, gridSize, player, monsters, weapons, treasures)){ //déplacer le joueur sur la case choisie si il n'est pas mort
         player->position_x = x;
         player->position_y = y;
+
+        if(CheckSquareInvalid(board[player->position_x+1][player->position_y]) && CheckSquareInvalid(board[player->position_x-1][player->position_y])
+           && CheckSquareInvalid(board[player->position_x][player->position_y+1]) && CheckSquareInvalid(board[player->position_x][player->position_y-1])){
+            print_board(board, boardSize, player);
+            printf("Vous êtes bloqué dans le labyrinte...\n");
+            reset(board, boardSize, gridSize, player);
+        }
+        else{
+            print_board(board, boardSize, player);
+            turn(board, boardSize, gridSize, player, monsters, weapons, treasures);
+        }
     }
     else{
-        for(int i = 1; i <= gridSize; i++){ //reset du plateau à la mort du joueur
-            for (int j = 1; j <= gridSize; j++){
-                board[i][j].flipped = 0;
-                board[i][j].emptied = 0;
-            }
-        }
-        player->position_x = player->start_x; //le joueur est remis à sa position de départ
-        player->position_y = player->start_y;
-        printf("Vous revenez à votre position de départ...\n");
+        reset(board, boardSize, gridSize, player);
     }
-    print_board(board, boardSize, player);
 }
 
 int main() {
@@ -392,8 +416,6 @@ int main() {
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
     Square **board = create_board(BOARD_SIZE, GRID_SIZE, monsters, weapons, treasures);
 
-    ////////////        CREATION PERSONNAGE        ////////////
-
     Player players[4]; //liste des joueurs
     for(int i=0; i<4; i++){  //initialisation de chaque joueur
         init_player(&players[i], i+1, adventurers[i], start_x[i], start_y[i]);
@@ -408,8 +430,7 @@ int main() {
 
     ////////////        WIP TEST GAMEPLAY        ////////////
     for (int i = 0; i < 40; i++) {
-        weapon_choice(&players[0]);
-        move(board, BOARD_SIZE, GRID_SIZE, &players[0], monsters, weapons, treasures);
+        turn(board, BOARD_SIZE, GRID_SIZE, &players[0], monsters, weapons, treasures);
     }
 
     ////////////        LIBERATION DE LA MEMOIRE        ////////////
