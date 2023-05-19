@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.25)
 project(myster-us-adventures C)
 
 set(CMAKE_C_STANDARD 11)
@@ -17,6 +17,4 @@ endif ()
 add_subdirectory(external/rgr)
 
 add_executable(myster-us-adventures
-        usual.c test.c)
-target_link_libraries(myster-us-adventures GameRGR2)
-target_include_directories(myster-us-adventures PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+        main.c usual.c)
