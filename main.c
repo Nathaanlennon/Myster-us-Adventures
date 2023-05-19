@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "macro.h"
-#include "usual.h"
+#include "include/macro.h"
+#include "include/usual.h"
 
 // Structure pour une case du plateau de jeu
 typedef struct {
@@ -12,22 +12,6 @@ typedef struct {
     int emptied; //variable booléenne qui vaut 1 si la case est vidée (monstre battu/objet pris), 0 sinon
 } Square;
 
-typedef struct {
-    int number;
-    char symbol[10];
-    int weapon;
-
-    int start_x; //case de départ attribuée abscisse
-    int start_y; //case de départ attribuée ordonnée
-    int position_x; //position durant le tour abscicsse
-    int position_y; //position durant le tour abscicsse
-
-    int ancientWeapon_found;
-    int treasure_found;
-
-    char name[];
-    //color mais j'ai la flemme pour l'instant
-} Player;
 
 // Cherche l'indice du symbole de la case dans un tableau spécifié, renvoie l'indice de la première occurrence du symbole dans le tableau, sinon renvoie -1
 int SymbolIdInArray(Square square, const char array[][10], int size){
@@ -118,7 +102,7 @@ void background(int i, int j){
     }
     cursor_move('A', 10);
     waiting();
-    clear_all();
+    //clear_all();
     waiting();
 }
 
@@ -354,7 +338,7 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
 }
 
 //Déplacement d'un joueur et évènements
-void move(Square **board, int boardSize, int gridSize, Player* player, const char monsters[][10], const char weapons[][10], const char treasures[][10]) {
+void turn(Square **board, int boardSize, int gridSize, Player* player, const char monsters[][10], const char weapons[][10], const char treasures[][10]) {
 
     if(board == NULL || player == NULL){
         write_crash_report("pointer in parameters is NULL");
@@ -391,9 +375,7 @@ void move(Square **board, int boardSize, int gridSize, Player* player, const cha
     print_board(board, boardSize, player);
 }
 
-int main() {
-    srand(time(NULL));
-
+void launch_game(){
     const char weapons[4][10] = {STICK, SWORD, DAGGER, SPELLBOOK}; //Symboles des armes
     const char treasures[5][10] = {CHEST, PORTAL, TOTEM, TOTEM, CHEST}; //Symboles des objets spéciaux (coffres, totems, portails)
     const char monsters[4][10] = {ZOMBIE, BASILISK, TROLL, HARPY}; //Symboles des monstres
@@ -422,12 +404,13 @@ int main() {
     ////////////        WIP TEST GAMEPLAY        ////////////
     for (int i = 0; i < 40; i++) {
         weapon_choice(&players[0]);
-        move(board, BOARD_SIZE, GRID_SIZE, &players[0], monsters, weapons, treasures);
+        turn(board, BOARD_SIZE, GRID_SIZE, &players[0], monsters, weapons, treasures);
     }
 
     ////////////        LIBERATION DE LA MEMOIRE        ////////////
     free_board(board, BOARD_SIZE);
 }
+
 
 void title_screen() {
     printf("%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);

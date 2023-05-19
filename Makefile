@@ -8,7 +8,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra
 
 # Liste des fichiers source
-SOURCES =test.c usual.c 
+SOURCES =main.c usual.c
 
 # Liste des fichiers objets correspondant aux fichiers source
 OBJECTS = $(SOURCES:.c=.o)

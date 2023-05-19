@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "macro.h"
-#include "usual.h"
-#include "struct.h"
+#include "include/macro.h"
+#include "include/usual.h"
+#include "include/struct.h"
 #include "external/rgr/inc/libGameRGR2.h"
 
 
