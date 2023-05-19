@@ -4,9 +4,6 @@
 #include <time.h>
 
 #include "include/macro.h"
-#include "playerturn.c"
-#include "init.c"
-#include "usual.c"
 #include "include/header.h"
 
 

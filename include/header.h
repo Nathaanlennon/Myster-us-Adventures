@@ -28,7 +28,7 @@ typedef struct {
 } Player;
 
 ///////            USUAL            //////////
-/*
+
 void clear_all();
 void clear_part(int line, int column);
 void cursor_move(char direction, int num);
@@ -56,5 +56,4 @@ int event_ancient_weapon(Player* player, int ancientWeapon);
 int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, Player* player, const char monsters[][10], const char weapons[][10], const char treasures[][10]);
 void move(Square **board, int boardSize, int gridSize, Player* player, const char monsters[][10], const char weapons[][10], const char treasures[][10]);
 
-*/
 #endif

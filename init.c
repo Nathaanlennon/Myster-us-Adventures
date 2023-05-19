@@ -2,9 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/macro.h"
-#include "../include/header.h"
-#include "../usual.c"
+#include "/include/header.h"
+#include "/include/macro.h"
 
 //placement aléatoire de symboles
 void random_placement(Square **board, int gridSize, const char tab[][10], int tabSize, const char monsters[][10]){

@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../include/header.h"
-#include "../usual.c"
+#include "/include/header.h"
+#include "/include/macro.h"
 
 
 void weapon_choice(Player *player) {
