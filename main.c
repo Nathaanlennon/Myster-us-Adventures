@@ -23,12 +23,90 @@ typedef struct {
     int position_x; //position durant le tour abscicsse
     int position_y; //position durant le tour abscicsse
 
+    int score;
+    int flip_cards;
+    int killed_monsters;
+    int total_treasures;
+
     int ancientWeapon_found;
     int treasure_found;
 
     char name[];
     //color mais j'ai la flemme pour l'instant
 } Player;
+
+//Menu qui va être remplacé par Nathan, c'est triste
+int menu(){
+    int bouton_d = 0;
+    int nombre_p = 0 ;
+    do {
+        printf("Bienvenue voyageur(s) ! \nSouhaitez-vous jouer ? Appuyez sur 1. \nSouhaitez-vous accéder aux scores ? Appuyez sur 2. ");
+        scanf("%d", &bouton_d);
+        printf("\n\n");
+    }while(bouton_d <=0 || bouton_d >= 3);
+
+
+    if(bouton_d == 1){
+        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
+        scanf("%d", &nombre_p);
+        printf("\n\n");
+        if(nombre_p<=1 || nombre_p>=5){
+            do{
+                printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
+                scanf("%d", &nombre_p);
+                printf("\n\n");
+            }while(nombre_p<=1 || nombre_p>=5);
+
+        }
+        printf("C'est parti ! Bonne chance à vous <3"); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
+        printf("\n\n");
+    }
+    else if(bouton_d == 2){
+        do {
+            printf("On a pas encore fait ... oops\nSouhaitez-vous jouer? Appuyez sur 1. ");
+            scanf("%d", &bouton_d);
+            printf("\n\n");
+        }while(bouton_d !=1);
+        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
+        scanf("%d", &nombre_p);
+        printf("\n\n");
+        if(nombre_p<=1 || nombre_p>=5){
+            do{
+                printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
+                scanf("%d", &nombre_p);
+                printf("\n\n");
+            }while(nombre_p<=1 || nombre_p>=5);
+
+        }
+        printf("C'est parti ! Bonne chance à vous <3"); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
+        printf("\n\n");
+    }
+    return nombre_p;
+}
+
+void score(int cards, int monsters, int found){
+    printf("Voici votre score :\n%d cartes retournées\n%d monstres tués\n%d de trésors trouvés\n", cards, monsters, found);
+}
+
+/*fonction écriture dans un fichier
+void score_database(Player playerlist[], int nbplayer){
+    FILE* file = fopen("database", argument pour que ça soit en lecture et écriture et si le fichier existe il est pas écrasé mais juste modifié);
+
+    for(int i = 0; i< nbplayer; i++){
+        if(joueur n'existe pas déjà dans fichier (jsp comment on fait mdr)){
+            fprintf(file, "Nom : %s", playerlist[i].name);
+            faire pareil pour le score, nb de trésors trouvé, monstres tués, cartes retournées
+        }
+        else{
+            repérer la ligne du fichier ou le nom du joueur est présent
+            repérer la ligne où y'a : score, nb monstres tués, trésors trouvés, cartes retournées
+            pour chacunes de ces valeurs : la lire, la récupérer dans une variable int score par ex
+            int score += playerlist[j].score;
+            //réécrire par dessus
+        }
+    }
+}
+*/
 
 // Cherche l'indice du symbole de la case dans un tableau spécifié, renvoie l'indice de la première occurrence du symbole dans le tableau, sinon renvoie -1
 int SymbolIdInArray(Square square, const char array[][10], int size){
@@ -139,6 +217,8 @@ void init_player(Player* player, int num, const char* symbol, int start_x, int s
     scanf("%s", player->name);
     flush_input_buffer(); //au cas où le joueur entre un nom avec des espaces
 
+    //fonction qui écrit dans un fichier le nom (en passant en paramètre player->name)
+
     player->start_x = start_x;
     player->start_y = start_y;
     player->position_x = player->start_x;
@@ -146,6 +226,7 @@ void init_player(Player* player, int num, const char* symbol, int start_x, int s
 
     player->ancientWeapon_found = 0;
     player->treasure_found = 0;
+    player->score = 0;
 }
 
 void print_board(Square **board, int boardSize, Player* player) { //afficher le plateau avec le joueur actif
@@ -294,6 +375,7 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
         if(fight(*player, symbolIdMonsters)){ //le joueur a choisi la bonne arme contre ce monstre
             printf("Combat gagné !\n");
             board[*x][*y].emptied = 1;
+            //player->killedmonster +1
         }
         else{
             printf("Combat perdu !\n"); //le joueur n'a pas choisi la bonne arme contre ce monstre
@@ -309,6 +391,7 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
             case 0:
                 printf("Vous avez découvert un trésor !\n");
                 player->treasure_found = 1;
+                //player treasures total +1
                 break;
 
             case 1:
@@ -340,8 +423,8 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
     return 1;
 }
 
-//Déplacement d'un joueur et évènements
-void move(Square **board, int boardSize, int gridSize, Player* player, const char monsters[][10], const char weapons[][10], const char treasures[][10]) {
+//Déplacement d'un joueur et évènements = tour entier d'un joueur. Ne s'arrête qu'une fois que le joueur meurt
+void turn(Square **board, int boardSize, int gridSize, Player* player, const char monsters[][10], const char weapons[][10], const char treasures[][10]) {
 
     if(board == NULL || player == NULL){
         write_crash_report("pointer in parameters is NULL");
@@ -363,6 +446,8 @@ void move(Square **board, int boardSize, int gridSize, Player* player, const cha
     if(event_manager(&x, &y, board, boardSize, gridSize, player, monsters, weapons, treasures)){ //déplacer le joueur sur la case choisie si il n'est pas mort
         player->position_x = x;
         player->position_y = y;
+        //player case +1
+        turn(board, boardSize, gridSize, player, monsters, weapons, treasures);
     }
     else{
         for(int i = 1; i <= gridSize; i++){ //reset du plateau à la mort du joueur
@@ -392,8 +477,17 @@ int main() {
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
     Square **board = create_board(BOARD_SIZE, GRID_SIZE, monsters, weapons, treasures);
 
-    ////////////        CREATION PERSONNAGE        ////////////
-    //trucs à mettre pour le nb joueur
+    ///////////// MENU + NB DE PLAYER + NOM PLAYER ///////////
+    int j = 0;
+    int x = menu();
+    printf("%d", x);
+    printf("\n\n");
+    do{
+        //modifier
+        j++;
+    }while(j<x);
+
+    //faire en sorte que la liste soit de taille dynamique selon le nombre de joueur choisi et initialiser le nombre de joueur nécessaire
     Player players[4]; //liste des joueurs
     for(int i=0; i<4; i++){  //initialisation de chaque joueur
         init_player(&players[i], i+1, adventurers[i], start_x[i], start_y[i]);
@@ -407,10 +501,20 @@ int main() {
     print_board(board, BOARD_SIZE, &players[0]);
 
     ////////////        WIP TEST GAMEPLAY        ////////////
-    for (int i = 0; i < 40; i++) {
-        weapon_choice(&players[0]);
-        move(board, BOARD_SIZE, GRID_SIZE, &players[0], monsters, weapons, treasures);
+    /*for(int i=0; i< nb joueur; i++){
+        while(player[i]->treasure_found != 1 && player[i]->weapon_found != 1) {
+            for(int j=0; j< nb joueur; j++){
+                weapon_choice(&players[j]);
+                turn(board, BOARD_SIZE, GRID_SIZE, &players[j], monsters, weapons, treasures);
+                if(player[j]->treasure_found != 1 && player[j]->weapon_found != 1){
+                    message le joueur intel a gagné
+                    player[j]->score +1
+                    break;
+                }
+            }
+        }
     }
+     */
 
     ////////////        LIBERATION DE LA MEMOIRE        ////////////
     free_board(board, BOARD_SIZE);
