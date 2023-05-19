@@ -21,6 +21,7 @@ void init(void* pUserData, Screen* pScreen){
     d->cursor.y=0;
     d->cursor.color = 7;
     d->cursor.background = 0;
+    d->colors.color_num=0;
 
     setColorPair(9, COLOR_CYAN, COLOR_MAGENTA);
 }
@@ -52,9 +53,11 @@ int update(void* pUserData, Screen* pScreen, unsigned long deltaTime){
 void draw(void* pUserData, Screen* pScreen){
     Data* d = pUserData;
     //drawText(d->screen, 20,10, "Issou chuech", 1);
-    draw_printf2(d,"%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
+    clear_all(d);
+    draw_printf(d,"%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
+
+    //erase();
     /*
-    erase();
     draw_printf(d,"%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
     switch (d->scene_type) {
         case MAIN_MENU:

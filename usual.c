@@ -9,8 +9,11 @@
 #include "usual.h"
 
 // efface tout le terminal visible
-void clear_all() {
-    printf("\033[0;0H\033[J");
+void clear_all(Data* d) {
+    erase();
+    d->cursor.y =0;
+    d->cursor.x=0;
+
 }
 
 //efface une partie du terminal
@@ -64,12 +67,28 @@ void set_color(Data *data, char *code) {
 }
 
 short get_color_pair(Data *data) {
-    short id = (short) (data->cursor.color << 8 | data->cursor.background);
-    init_pair(id, data->cursor.color, data->cursor.background);
-    return id;
+    if (data->colors.color_num==0){
+        data->colors.colors_pair[0][0] = data->cursor.color;
+        data->colors.colors_pair[0][1]= data->cursor.background;
+        init_pair(8, data->cursor.color, data->cursor.background);
+
+        data->colors.color_num ++;
+        return 1;
+    }
+    for (int i = 0; i < data->colors.color_num; i++) {
+        if (data->colors.colors_pair[i][0] == data->cursor.color && data->colors.colors_pair[i][1]== data->cursor.background){
+            return i+8;
+        }
+    }
+    data->colors.colors_pair[data->colors.color_num][0] = data->cursor.color;
+    data->colors.colors_pair[data->colors.color_num][1]= data->cursor.background;
+    init_pair(data->colors.color_num+8, data->cursor.color, data->cursor.background);
+    data->colors.color_num++;
+    return data->colors.color_num+8;
+
 }
 
-void draw_printf2(Data *data, const char *format, ...) {
+void draw_printf(Data *data, const char *format, ...) {
     va_list args;
     va_start(args, format);
 
@@ -91,6 +110,8 @@ void draw_printf2(Data *data, const char *format, ...) {
             i += 4;
         } else if (buffer[i] == '\n') {
             drawText(data->screen, data->cursor.x, data->cursor.y, str, get_color_pair(data));
+            free(str);
+            str = malloc(strlen(buffer));
             data->cursor.x = 0;
             data->cursor.y += 1;
         } else {
@@ -102,60 +123,5 @@ void draw_printf2(Data *data, const char *format, ...) {
     data->cursor.x += strlen(str);
 
     free(str);
-    va_end(args);
-}
-
-void draw_printf(Data *data, const char *format, ...) {
-    va_list args;
-    va_start(args, format);
-
-    char buffer[200];
-    vsnprintf(buffer, sizeof(buffer), format, args);
-    char ansi[2];
-    char *str = malloc(strlen(buffer) * sizeof(char));
-    int k = 0;
-    for (int i = 0; i < strlen(buffer); i++) {
-        if (buffer[i] < ' ') {
-            char *str2 = malloc(strlen(str));
-            for (int l = 0; l < strlen(str2); l++) {
-                str2[l] = str[l];
-            }
-            drawText(data->screen, 20, 10, "Issou chuech", 1);
-            //drawText(data->screen, data->cursor.x, data->cursor.y, str, get_color_pair(data));
-            getchar();
-            int a = strlen(str);
-            printf("%d", a);
-            free(str2);
-            if (buffer[i] == '\n') {
-                data->cursor.x = 0;
-                data->cursor.y++;
-                i++;
-            } else {
-                for (int j = 0; j < 2; j++) {
-                    ansi[j] = buffer[i + j + 2];
-                }
-                set_color(data, ansi);
-                i += 4;
-            }
-            free(str);
-            k = 0;
-            str = malloc(strlen(buffer) - i + 1);
-        } else {
-            str[k] = buffer[i];
-            char a = *str + k;
-            k++;
-        }
-
-    }
-    if (buffer[strlen(buffer) - 1] >= ' ') {
-        char *str2 = malloc(strlen(str));
-        for (int l = 0; l < strlen(str2); l++) {
-            str2[l] = str[l];
-        }
-        drawText(data->screen, data->cursor.x, data->cursor.y, str, get_color_pair(data));
-        data->cursor.x = strlen(str);
-        free(str2);
-        free(str);
-    }
     va_end(args);
 }
