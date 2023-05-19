@@ -393,7 +393,7 @@ int main() {
     Square **board = create_board(BOARD_SIZE, GRID_SIZE, monsters, weapons, treasures);
 
     ////////////        CREATION PERSONNAGE        ////////////
-
+    //trucs à mettre pour le nb joueur
     Player players[4]; //liste des joueurs
     for(int i=0; i<4; i++){  //initialisation de chaque joueur
         init_player(&players[i], i+1, adventurers[i], start_x[i], start_y[i]);
