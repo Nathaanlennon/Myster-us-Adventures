@@ -12,6 +12,12 @@ typedef struct {
     int emptied; //variable booléenne qui vaut 1 si la case est vidée (monstre battu/objet pris), 0 sinon
 } Square;
 
+typedef struct {
+    int number;
+    char name[10];
+    Square progression[BOARD_SIZE][BOARD_SIZE]; //stocke la carte d'un joueur (gardant en mémoire les cases retournées)
+    int score;
+} Player;
 
 // Cherche l'indice du symbole de la case dans un tableau spécifié, renvoie l'indice de la première occurrence du symbole dans le tableau, sinon renvoie -1
 int SymbolIdInArray(Square square, const char array[][10], int size){
@@ -38,6 +44,65 @@ void random_placement(Square **board, int gridSize, const char tab[][10], int ta
         }while(SymbolIdInArray(board[randomRow][randomCol], monsters, 4) == -1); //vérification que la case choisie aléatoirement ne soit pas déjà une arme/trésor
         strcpy(board[randomRow][randomCol].symbol, tab[i]);
     }
+}
+//Menu
+int menu(){
+    int bouton_d = 0;
+    int nombre_p = 0 ;
+    do {
+        printf("Bienvenue voyageur(s) ! \nSouhaitez-vous jouer ? Appuyez sur 1. \nSouhaitez-vous accéder aux scores ? Appuyez sur 2. ");
+        scanf("%d", &bouton_d);
+        printf("\n\n");
+    }while(bouton_d <=0 || bouton_d >= 3);
+
+
+    if(bouton_d == 1){
+        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
+        scanf("%d", &nombre_p);
+        printf("\n\n");
+        if(nombre_p<=1 || nombre_p>=5){
+            do{
+                printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
+                scanf("%d", &nombre_p);
+                printf("\n\n");
+            }while(nombre_p<=1 || nombre_p>=5);
+
+        }
+        printf("C'est parti ! Bonne chance à vous <3"); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
+        printf("\n\n");
+    }
+    else if(bouton_d == 2){
+        do {
+            printf("On a pas encore fait ... oops\nSouhaitez-vous jouer? Appuyez sur 1. ");
+            scanf("%d", &bouton_d);
+            printf("\n\n");
+        }while(bouton_d !=1);
+        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
+        scanf("%d", &nombre_p);
+        printf("\n\n");
+        if(nombre_p<=1 || nombre_p>=5){
+            do{
+                printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
+                scanf("%d", &nombre_p);
+                printf("\n\n");
+            }while(nombre_p<=1 || nombre_p>=5);
+
+        }
+        printf("C'est parti ! Bonne chance à vous <3"); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
+        printf("\n\n");
+    }
+    return nombre_p;
+}
+
+
+
+Player nb_player(){
+    Player f;
+    printf("Quel est votre nom ?\n");
+    scanf("%s", f.name);
+    f.number += 1; /// ATTENTION LE PREMIER F.NUMBER = 2 A NE PAS OUBLIER POUR PLUS TARD ////
+    printf("\n\n");
+
 }
 
 //Initialisation de la map aléatoire de symboles
@@ -374,7 +439,31 @@ void turn(Square **board, int boardSize, int gridSize, Player* player, const cha
     }
     print_board(board, boardSize, player);
 }
+int flip_card(Square **board, int size) {
+    int x, y;
+    int nb_card = 0;
+    do {
+        printf("Retourner quelle carte ? donner coordonnées x, y : ");
+        scanf("%d, %d", &x, &y);
+    } while (x < 0 || x > 4 || y < 0 || y > 4);
 
+    board[x][y].flipped = 1;
+    nb_card += 1;
+    return nb_card;
+}
+void next_player(Square **board, int size){
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            printf("%s ", HIDDEN);
+        }
+        printf("\n");
+    }
+///Player à la place ini///
+}
+
+int score(int cards, int monsters, int found){
+    printf("Voici votre score :\n%d cartes retournées\n%d monstres tués\n%d de trésors trouvés\n", cards, monster, found);
+}
 void launch_game(){
     const char weapons[4][10] = {STICK, SWORD, DAGGER, SPELLBOOK}; //Symboles des armes
     const char treasures[5][10] = {CHEST, PORTAL, TOTEM, TOTEM, CHEST}; //Symboles des objets spéciaux (coffres, totems, portails)
@@ -439,3 +528,4 @@ int main() {
 
     return 0;
 }
+
