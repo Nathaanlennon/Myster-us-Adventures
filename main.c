@@ -226,7 +226,11 @@ void init_player(Player* player, int num, const char* symbol, int start_x, int s
 
     player->ancientWeapon_found = 0;
     player->treasure_found = 0;
+
     player->score = 0;
+    player->total_treasures = 0;
+    player->killed_monsters = 0;
+    player->flip_cards = 0;
 }
 
 void print_board(Square **board, int boardSize, Player* player) { //afficher le plateau avec le joueur actif
