@@ -112,6 +112,7 @@ void draw_printf(Data *data, const char *format, ...) {
             drawText(data->screen, data->cursor.x, data->cursor.y, str, get_color_pair(data));
             free(str);
             str = malloc(strlen(buffer));
+            j = 0;
             data->cursor.x = 0;
             data->cursor.y += 1;
         } else {

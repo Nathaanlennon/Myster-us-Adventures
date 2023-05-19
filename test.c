@@ -52,24 +52,19 @@ int update(void* pUserData, Screen* pScreen, unsigned long deltaTime){
 
 void draw(void* pUserData, Screen* pScreen){
     Data* d = pUserData;
-    //drawText(d->screen, 20,10, "Issou chuech", 1);
     clear_all(d);
-    draw_printf(d,"%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
 
-    //erase();
-    /*
     draw_printf(d,"%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
     switch (d->scene_type) {
         case MAIN_MENU:
-            //drawText(pScreen, 0, 0, "chuech", 1);
-            
+            draw_printf(d,"\n\n\n%s[1] Let's play !\n[2] HighScore\n", C_WHT);
             break;
         case GAME:
             drawText(pScreen, d->player.x, d->player.y, "@", 1);
             break;
         case HIGHS_SCORE:
             break;
-    }*/
+    }
 
 }
 
