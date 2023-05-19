@@ -4,6 +4,8 @@
 #include <time.h>
 
 #include "include/macro.h"
+#include "include/header.h"
+
 
 // efface tout le terminal visible
 void clear_all(){
@@ -44,7 +46,7 @@ void waiting(){
     getchar();
 }
 
-//permet de créer un fichier de rapport de crash si il y en a un
+//pour créer un fichier de rapport de crash s'il y en a un
 void write_crash_report(const char* error_message) {
     time_t current_time = time(NULL); //la fonction time renvoie nombre de secondes écoulées depuis le 01/01/1970 00:00:00
     struct tm* time = localtime(&current_time); //conversion du timestamp précédent en date lisible selon le fuseau horaire local
@@ -61,4 +63,70 @@ void write_crash_report(const char* error_message) {
 
     fclose(file);
     printf("Le rapport de crash a été créé : %s\n", filename);
+}
+
+// Cherche l'indice du symbole de la case dans un tableau spécifié, renvoie l'indice de la première occurrence du symbole dans le tableau, sinon renvoie -1
+int SymbolIdInArray(Square square, const char array[][10], int size){
+    for(int i = 0; i<size; i++){
+        if(strcmp(square.symbol, array[i]) == 0)
+            return i; //retourne le premier indice correspondant si trouvé dans le tableau
+    }
+    return -1; //si pas dans le tableau
+}
+
+//afficher le plateau avec le joueur actif
+void print_board(Square **board, int boardSize, Player* player) {
+
+    if(board == NULL || player == NULL){
+        write_crash_report("pointer in parameters is NULL");
+        exit(1);
+    }
+
+    for (int i = 0; i < boardSize; i++) {
+        for (int j = 0; j < boardSize; j++) {
+            if(player->position_x == i && player->position_y == j){ //afichage du joueur selon sa position
+                printf("%s ", player->symbol);
+            }
+            else if (board[i][j].flipped == 1){ //afichages des cartes retournées
+                if(board[i][j].emptied == 1){ //monstres vaincus (cases vides)
+                    printf("%s ", EMPTY);
+                }
+                else{
+                    printf("%s ", board[i][j].symbol); //trésors et armes découverts
+                }
+            }
+
+            else {
+                printf("%s ", HIDDEN); //cartes retournées
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
+//print board mais on voit toutes les cases
+void print_board_admin(Square **board, int boardSize, Player* player) {
+
+    if(board == NULL || player == NULL){
+        write_crash_report("pointer in parameters is NULL");
+        exit(1);
+    }
+
+    for (int i = 0; i < boardSize; i++) {
+        for (int j = 0; j < boardSize; j++) {
+            if(player->position_x == i && player->position_y == j){
+                printf("%s ", player->symbol);
+            }
+            else if(board[i][j].emptied == 1){
+                printf("%s ", EMPTY);
+            }
+            else {
+                printf("%s ", board[i][j].symbol);
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
 }

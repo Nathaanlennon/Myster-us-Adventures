@@ -1,3 +1,7 @@
+#ifndef MACRO_H
+#define MACRO_H
+
+
 #define GRID_SIZE 5 //taille du labyrinthe
 #define BOARD_SIZE 7 //taille du plateau entier (avec les cases de départ incluses)
 
@@ -41,3 +45,5 @@
 #define B_MAG "\033[45m" // Fond magenta
 #define B_CYN "\033[46m" // Fond cyan
 #define B_WHT "\033[47m" // Fond blanc
+
+#endif
