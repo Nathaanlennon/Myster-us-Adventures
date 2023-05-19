@@ -169,14 +169,17 @@ void print_board(Square **board, int size) {
     }
 }
 
-void flip_card(Square **board, int size) {
+int flip_card(Square **board, int size) {
     int x, y;
+    int nb_card = 0;
     do {
         printf("Retourner quelle carte ? donner coordonnées x, y : ");
         scanf("%d, %d", &x, &y);
     } while (x < 0 || x > 4 || y < 0 || y > 4);
 
     board[x][y].flipped = 1;
+    nb_card += 1;
+    return nb_card;
 }
 
 
@@ -190,10 +193,15 @@ void next_player(Square **board, int size){
 ///Player à la place ini///
 }
 
+int score(int cards, int monsters, int found){
+    printf("Voici votre score :\n%d cartes retournées\n%d monstres tués\n%d de trésors trouvés\n", cards, monster, found);
+}
+
 
 int main() {
-
+    int cards = 0;
     srand(time(NULL));
+    int monsters = 0;
 
     // ATTENTION SUPPR ÇA AVAIT DE RENDRE, C'EST POUR LES PROBLEMES DE COMPATIBILITÉ WINDOWS DE CLION
 #ifdef WIN32
@@ -216,15 +224,23 @@ int main() {
 
     ////////////        AFFICHAGE        ////////////
     print_board(board, BOARD_SIZE);
+    cards = flip_card();
+
+
 
     //test de flip_card
     for (int i = 0; i < 5; i++) {
         flip_card(board, BOARD_SIZE);
         print_board(board, BOARD_SIZE);
     }
+    if (board[x][y].symbol = board[x][y].monsters){
+        monsters += 1;
+    }
 
+    score();
     ////////////        LIBERATION DE LA MEMOIRE        ////////////
     free_board(board, BOARD_SIZE);
 
     return 0;
 }
+
