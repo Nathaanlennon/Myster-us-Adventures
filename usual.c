@@ -3,8 +3,8 @@
 #include <string.h>
 #include <time.h>
 
-#include "/include/header.h"
-#include "/include/macro.h"
+#include "include/header.h"
+#include "include/macro.h"
 
 
 // efface tout le terminal visible
