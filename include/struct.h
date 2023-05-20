@@ -33,6 +33,8 @@ typedef struct Data {
     Cursor cursor;
     Player player;
     Colors colors;
+    int _bool;
+    char* buffer;
 } Data;
 #endif //MYSTER_US_ADVENTURES_STRUCT_H
 

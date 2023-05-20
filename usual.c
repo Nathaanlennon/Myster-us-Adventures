@@ -126,3 +126,8 @@ void draw_printf(Data *data, const char *format, ...) {
     free(str);
     va_end(args);
 }
+
+void curses_scanf(){
+
+}
+void

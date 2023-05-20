@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "macro.h"
 #include "usual.h"
 #include "struct.h"
 #include "external/rgr/inc/libGameRGR2.h"
-
+#include "game.h"
 
 //change de scène quand appelé
 void scene_changer(Data *data, Scene scene){
@@ -28,18 +29,27 @@ void init(void* pUserData, Screen* pScreen){
 
 void event(void* pUserData, Screen* pScreen, Event* pEvt){
     Data* d = pUserData;
-    switch (pEvt->code){
-        case('s'):
-            d->player.y ++;
+    switch (d->scene_type) {
+        case MAIN_MENU:
+            switch (pEvt->code){
+                case('&'):
+                case('1'):
+                    launch_game(d);
+                    break;
+            }
             break;
-        case ('z'):
-            d->player.y --;
+        case GAME:
+            if(d->_bool){
+                d->buffer = malloc(100);
+                if(pEvt->code == '\n'){
+                    d->_bool=0;
+                }
+                strcat(d->buffer, (const char *) pEvt->code);
+
+            }
             break;
-        case ('d'):
-            d->player.x ++;
+        case HIGHS_SCORE:
             break;
-        case ('q'):
-            d->player.x --;
     }
 
 }
@@ -60,7 +70,7 @@ void draw(void* pUserData, Screen* pScreen){
             draw_printf(d,"\n\n\n%s[1] Let's play !\n[2] HighScore\n", C_WHT);
             break;
         case GAME:
-            drawText(pScreen, d->player.x, d->player.y, "@", 1);
+
             break;
         case HIGHS_SCORE:
             break;

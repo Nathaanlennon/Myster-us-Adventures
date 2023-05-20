@@ -16,4 +16,5 @@ void waiting();
 void set_color(Data *data, char *code);
 short get_color_pair(Data *data);
 void draw_printf(Data* data, const char *format, ...);
+void get_str();
 #endif //MYSTER_US_ADVENTURES_USUAL_H
