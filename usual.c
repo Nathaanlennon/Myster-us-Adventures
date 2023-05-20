@@ -58,6 +58,25 @@ void waiting() {
     flush_input_buffer(); // efface la mémoire tampon pour éviter les fuites de mémoire d'input
 }
 
+//permet de créer un fichier de rapport de crash si il y en a un
+void write_crash_report(const char* error_message) {
+    time_t current_time = time(NULL); //la fonction time renvoie nombre de secondes écoulées depuis le 01/01/1970 00:00:00
+    struct tm* time = localtime(&current_time); //conversion du timestamp précédent en date lisible selon le fuseau horaire local
+    char filename[50];
+    strftime(filename, sizeof(filename), "%Y-%m-%d_%H-%M-%S_crash_report.txt", time); //formatage du nom de fichier en année-mois-jour_heure-min-sec
+
+    FILE* file = fopen(filename, "w");
+    if (file == NULL) {
+        printf("Erreur lors de la création du rapport de crash.\n");
+    }
+
+    fprintf(file, "Date et heure du crash : %s", asctime(time));
+    fprintf(file, "Message d'erreur : %s\n", error_message);
+
+    fclose(file);
+    printf("Le rapport de crash a été créé : %s\n", filename);
+}
+
 void set_color(Data *data, char *code) {
     if (code[0] == '3') {
         data->cursor.color = code[1] - '0';

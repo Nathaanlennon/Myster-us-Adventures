@@ -31,7 +31,7 @@ typedef struct Data {
     Screen *screen;
     Scene scene_type;
     Cursor cursor;
-    Player player;
+    Player* players[4];
     Colors colors;
     int _bool;
     char* buffer;

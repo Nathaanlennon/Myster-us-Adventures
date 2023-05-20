@@ -39,14 +39,7 @@ void event(void* pUserData, Screen* pScreen, Event* pEvt){
             }
             break;
         case GAME:
-            if(d->_bool){
-                d->buffer = malloc(100);
-                if(pEvt->code == '\n'){
-                    d->_bool=0;
-                }
-                strcat(d->buffer, (const char *) pEvt->code);
 
-            }
             break;
         case HIGHS_SCORE:
             break;
