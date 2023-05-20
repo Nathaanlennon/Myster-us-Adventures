@@ -4,7 +4,6 @@
 #include "macro.h"
 #include "usual.h"
 #include "struct.h"
-#include "external/rgr/inc/libGameRGR2.h"
 #include "game.h"
 
 //change de scène quand appelé
