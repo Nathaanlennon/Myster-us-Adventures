@@ -14,22 +14,22 @@ typedef struct {
 } Square;
 
 typedef struct {
-    int number;
-    char symbol[10];
-    int weapon;
+    int number; //numéro du joueur
+    char symbol[10]; //symbole du joueur
+    int weapon; //arme antique attribuée
 
     int start_x; //case de départ attribuée abscisse
     int start_y; //case de départ attribuée ordonnée
     int position_x; //position durant le tour abscicsse
     int position_y; //position durant le tour abscicsse
 
-    int score;
-    int flip_cards;
-    int killed_monsters;
-    int total_treasures;
+    int score; //booléen qui vaudra 1 si la victoire est remportée, 0 sinon
+    int flip_cards; //nombre de cartes retournées au cours de la partie
+    int killed_monsters; //nombre de monstres tués au cours de la partie
+    int total_treasures; //nombre de trésors trouvés au cours de la partie
 
-    int ancientWeapon_found;
-    int treasure_found;
+    int ancientWeapon_found; //booléen si l'arme antique a été trouvée (condition nécessaire à la victoire)
+    int treasure_found; //booléen si au moins 1 trésor a été trouvé (condition nécessaire à la victoire)
 
     char name[];
     //color mais j'ai la flemme pour l'instant
@@ -62,51 +62,88 @@ int menu(){
         printf("\n\n");
     }
     else if(bouton_d == 2){
-        do {
-            printf("On a pas encore fait ... oops\nSouhaitez-vous jouer? Appuyez sur 1. ");
-            scanf("%d", &bouton_d);
-            printf("\n\n");
-        }while(bouton_d !=1);
-        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
-        scanf("%d", &nombre_p);
-        printf("\n\n");
-        if(nombre_p<=1 || nombre_p>=5){
-            do{
-                printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
-                scanf("%d", &nombre_p);
-                printf("\n\n");
-            }while(nombre_p<=1 || nombre_p>=5);
-
-        }
-        printf("C'est parti ! Bonne chance à vous <3"); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
-        printf("\n\n");
+        printFile("scores.txt");
     }
     return nombre_p;
 }
 
-void score(int cards, int monsters, int found){
-    printf("Voici votre score :\n%d cartes retournées\n%d monstres tués\n%d de trésors trouvés\n", cards, monsters, found);
+void score(Player* player){
+    printf("Voici votre score :\n%d cartes retournées\n%d monstres tués\n%d de trésors trouvés\n", player->flip_cards, player->killed_monsters, player->total_treasures);
 }
 
-/*fonction écriture dans un fichier
-void score_database(Player playerlist[], int nbplayer){
-    FILE* file = fopen("database", argument pour que ça soit en lecture et écriture et si le fichier existe il est pas écrasé mais juste modifié);
-
-    for(int i = 0; i< nbplayer; i++){
-        if(joueur n'existe pas déjà dans fichier (jsp comment on fait mdr)){
-            fprintf(file, "Nom : %s", playerlist[i].name);
-            faire pareil pour le score, nb de trésors trouvé, monstres tués, cartes retournées
-        }
-        else{
-            repérer la ligne du fichier ou le nom du joueur est présent
-            repérer la ligne où y'a : score, nb monstres tués, trésors trouvés, cartes retournées
-            pour chacunes de ces valeurs : la lire, la récupérer dans une variable int score par ex
-            int score += playerlist[j].score;
-            //réécrire par dessus
+//Enregistre un joueur et ses scores dans le fichier des scores. Si le joueur est déjà enregistré dans le fichier, met à jour ses scores
+void updatePlayerStats(Player* player){
+    FILE* file = fopen("scores.txt", "r+");
+    if (file == NULL){ //si le fichier n'existe pas, le créer
+        file = fopen("scores.txt", "w");
+        if (file == NULL){
+            write_crash_report("failed to create file");
+            exit(1);
         }
     }
+
+    char line[100]; //on estime que les lignes ne feront pas plus de 100 caractères
+    int found = 0;
+
+    int numGames = 0;
+    int victories = 0;
+    int killedMonsters = 0;
+    int flippedCards = 0;
+    int treasuresFound = 0;
+
+    long int cursorPositionStart;
+
+    //recherche du joueur dans le fichier
+    while (fgets(line, sizeof(line), file) != NULL){
+        if (strstr(line, player->name) != NULL){ //rechercher une sous chaine nom du joueur dans la chaine complète de la ligne
+            found = 1;
+
+            cursorPositionStart = ftell(file);
+
+            fgets(line, sizeof(line), file); //lire la prochaine ligne
+            sscanf(line, "Nombre de parties jouées : %d",&numGames); // récupérer la valeur à cette ligne
+
+            fgets(line, sizeof(line), file);
+            sscanf(line, "Victoires : %d",&victories);
+
+            fgets(line, sizeof(line), file);
+            sscanf(line, "Monstres terrassés : %d",&killedMonsters);
+
+            fgets(line, sizeof(line), file);
+            sscanf(line, "Trésors découverts : %d",&treasuresFound);
+
+            fgets(line, sizeof(line), file);
+            sscanf(line, "Cases révélées : %d",&flippedCards);
+        }
+    }
+
+    //si le joueur n'a pas été trouvé, l'ajouter
+    if (!found){
+        fprintf(file, "%s\n", player->name);
+        fprintf(file, "Nombre de parties jouées : %4d\n", 1); //%4d pour laisser de la place quand le nombre de digits de la valeur augmente sinon ça cause un problème dans l'écriture des données pour le prochain personnage
+        fprintf(file, "Victoires : %4d\n", player->score);
+        fprintf(file, "Monstres terrassés : %4d\n", player->killed_monsters);
+        fprintf(file, "Trésors découverts : %4d\n", player->total_treasures);
+        fprintf(file, "Cases révélées : %4d\n", player->flip_cards);
+    }
+    else{ //si le joueur a été trouvé, mettre à jour ses scores
+        fseek(file, cursorPositionStart, SEEK_SET);
+        fprintf(file, "Nombre de parties jouées : %4d\n", numGames+1);
+        fprintf(file, "Victoires : %4d\n", victories+player->score);
+        fprintf(file, "Monstres terrassés : %4d\n", killedMonsters+player->killed_monsters);
+        fprintf(file, "Trésors découverts : %4d\n", treasuresFound+player->total_treasures);
+        fprintf(file, "Cases révélées : %4d\n", flippedCards+player->flip_cards);
+    }
+    fseek(file, 0, SEEK_SET);
+    fclose(file);
 }
-*/
+
+//Enregistre tous les scores des joueurs de la partie. Fonction à mettre à la fin d'une partie pour éviter d'enregistrer des données d'une partie non terminée
+void registerScores(Player players[], int size){
+    for(int i=0;i<size;i++){
+        updatePlayerStats(&players[i]);
+    }
+}
 
 // Cherche l'indice du symbole de la case dans un tableau spécifié, renvoie l'indice de la première occurrence du symbole dans le tableau, sinon renvoie -1
 int SymbolIdInArray(Square square, const char array[][10], int size){
@@ -216,8 +253,6 @@ void init_player(Player* player, int num, const char* symbol, int start_x, int s
     printf("Entrer un prénom pour le joueur %d : ", player->number);
     scanf("%s", player->name);
     flush_input_buffer(); //au cas où le joueur entre un nom avec des espaces
-
-    //fonction qui écrit dans un fichier le nom (en passant en paramètre player->name)
 
     player->start_x = start_x;
     player->start_y = start_y;
