@@ -34,51 +34,22 @@ void random_placement(Square **board, int gridSize, const char tab[][10], int ta
     }
 }
 //Menu
-int menu(){
-    int bouton_d = 0;
+int players_number(){
     int nombre_p = 0 ;
-    do {
-        printf("Bienvenue voyageur(s) ! \nSouhaitez-vous jouer ? Appuyez sur 1. \nSouhaitez-vous accéder aux scores ? Appuyez sur 2. ");
-        scanf("%d", &bouton_d);
-        printf("\n\n");
-    }while(bouton_d <=0 || bouton_d >= 3);
-
-
-    if(bouton_d == 1){
-        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
-        scanf("%d", &nombre_p);
-        printf("\n\n");
-        if(nombre_p<=1 || nombre_p>=5){
-            do{
-                printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
-                scanf("%d", &nombre_p);
-                printf("\n\n");
-            }while(nombre_p<=1 || nombre_p>=5);
-
-        }
-        printf("C'est parti ! Bonne chance à vous <3"); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
-        printf("\n\n");
-    }
-    else if(bouton_d == 2){
-        do {
-            printf("On a pas encore fait ... oops\nSouhaitez-vous jouer? Appuyez sur 1. ");
-            scanf("%d", &bouton_d);
+    printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
+    scanf("%d", &nombre_p);
+    printf("\n\n");
+    if(nombre_p<=1 || nombre_p>=5){
+        do{
+            printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
+            scanf("%d", &nombre_p);
             printf("\n\n");
-        }while(bouton_d !=1);
-        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
-        scanf("%d", &nombre_p);
-        printf("\n\n");
-        if(nombre_p<=1 || nombre_p>=5){
-            do{
-                printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
-                scanf("%d", &nombre_p);
-                printf("\n\n");
-            }while(nombre_p<=1 || nombre_p>=5);
+        }while(nombre_p<=1 || nombre_p>=5);
 
-        }
-        printf("C'est parti ! Bonne chance à vous <3"); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
-        printf("\n\n");
     }
+    clear_part(5,0);
+    printf("C'est parti ! Bonne chance à vous %s<3%s", C_RED, C_WHT); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
+    printf("\n\n");
     return nombre_p;
 }
 
@@ -154,9 +125,7 @@ void background(int i, int j){
         printf("\n");
     }
     cursor_move('A', 10);
-    waiting();
-    //clear_all();
-    waiting();
+    clear_all();
 }
 
 
@@ -184,7 +153,7 @@ void init_player(Player* player, int num, const char* symbol, int start_x, int s
 
     player->number = num;
     strcpy(player->symbol, symbol);
-
+    clear_part(5,0);
     printf("Entrer un prénom pour le joueur %d : ", player->number);
     scanf("%s", player->name);
     flush_input_buffer(); //au cas où le joueur entre un nom avec des espaces
@@ -228,30 +197,6 @@ void print_board(Square **board, int boardSize, Player* player) { //afficher le 
     printf("\n");
 }
 
-////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
-void print_board_admin(Square **board, int boardSize, Player* player) { //print board mais on voit toutes les cases
-
-    if(board == NULL || player == NULL){
-        write_crash_report("pointer in parameters is NULL");
-        exit(1);
-    }
-
-    for (int i = 0; i < boardSize; i++) {
-        for (int j = 0; j < boardSize; j++) {
-            if(player->position_x == i && player->position_y == j){
-                printf("%s ", player->symbol);
-            }
-            else if(board[i][j].emptied == 1){
-                printf("%s ", EMPTY);
-            }
-            else {
-                printf("%s ", board[i][j].symbol);
-            }
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
 
 void weapon_choice(Player *player) {
 
@@ -465,23 +410,22 @@ void launch_game(){
 
     ///////////// MENU + NB DE PLAYER + NOM PLAYER ///////////
     int i = 0;
-    int x = menu();
+    clear_part(5,0);
+    int x = players_number();
     Player players[4]; //liste des joueurs
     printf("%d", x);
     printf("\n\n");
     do{
+        clear_part(5,0);
         init_player(&players[i], i+1, adventurers[i], start_x[i], start_y[i]);
         printf("Bienvenue %s !\n", players[i].name);
+        waiting();
         i++;
     }while(i<x);
 
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
     Square **board = create_board(BOARD_SIZE, GRID_SIZE, monsters, weapons, treasures);
 
-
-    ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
-    print_board_admin(board, BOARD_SIZE, &players[0]); //print board mais on voit toutes les cases
-    printf("\n\n");
 
     print_board(board, BOARD_SIZE, &players[0]);
 
@@ -518,7 +462,7 @@ void title_screen() {
 
 int main() {
     srand(time(NULL));
-
+    background(10,40);
     title_screen();
 
     return 0;

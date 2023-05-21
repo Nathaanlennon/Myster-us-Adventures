@@ -16,16 +16,15 @@ OBJECTS = $(SOURCES:.c=.o)
 # Règle par défaut
 all: $(TARGET)
 
-external/rgr/lib/libGameRGR2.so:
-	cd ./external/rgr && mkdir -p lib && $(MAKE) lib/libGameRGR2.so
+
 
 # Règle de compilation des fichiers objets
-%.o: %.c external/rgr/lib/libGameRGR2.so
-	$(CC) $(CFLAGS) -Iinclude -Iexternal/rgr/inc -Lexternal/rgr/lib -lGameRGR2 -lncursesw  -c $< -o $@
+%.o: %.c
+	$(CC) $(CFLAGS) -Iinclude     -c $< -o $@
 
 # Règle de construction du programme
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) -Iinclude -Iexternal/rgr/inc -Lexternal/rgr/lib $(OBJECTS) -o $@ -lGameRGR2 -lncursesw
+	$(CC) $(CFLAGS) -Iinclude  $(OBJECTS) -o $@
 
 # Règle de nettoyage des fichiers objets et du programme
 clean:
@@ -36,4 +35,4 @@ build: $(TARGET)
 
 .PHONY: run
 run: build
-	LD_LIBRARY_PATH=external/rgr/lib ./$(TARGET)
+	 ./$(TARGET)

@@ -6,7 +6,7 @@
 #define MYSTER_US_ADVENTURES_STRUCT_H
 
 #include <stdio.h>
-#include "../external/rgr/inc/libGameRGR2.h"
+
 
 typedef struct {
     int number;
@@ -56,19 +56,7 @@ typedef enum {
     GAME,
     HIGHS_SCORE
 } Scene;
-typedef struct {
-    int x;
-    int y;
-    short color;
-    short background;
-} Cursor;
-typedef struct Data {
-    Screen *screen;
-    Scene scene_type;
-    Cursor cursor;
-    Player2 player;
-    Colors colors;
-} Data;
+
 #endif //MYSTER_US_ADVENTURES_STRUCT_H
 
 
