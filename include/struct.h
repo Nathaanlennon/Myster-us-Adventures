@@ -9,18 +9,23 @@
 
 
 typedef struct {
-    int number;
-    char symbol[10];
-    int weapon;
+    int number; //numéro du joueur
+    char symbol[10]; //symbole du joueur
+    int weapon; //arme antique attribuée
 
     int start_x; //case de départ attribuée abscisse
     int start_y; //case de départ attribuée ordonnée
     int position_x; //position durant le tour abscicsse
-    int position_y; //position durant le tour ordonnée
+    int position_y; //position durant le tour abscicsse
 
-    int ancientWeapon_found;
-    int treasure_found;
-    int score;
+    int score; //booléen qui vaudra 1 si la victoire est remportée, 0 sinon
+    int flip_cards; //nombre de cartes retournées au cours de la partie
+    int killed_monsters; //nombre de monstres tués au cours de la partie
+    int total_treasures; //nombre de trésors trouvés au cours de la partie
+
+    int ancientWeapon_found; //booléen si l'arme antique a été trouvée (condition nécessaire à la victoire)
+    int treasure_found; //booléen si au moins 1 trésor a été trouvé (condition nécessaire à la victoire)
+
     char name[];
     //color mais j'ai la flemme pour l'instant
 } Player;

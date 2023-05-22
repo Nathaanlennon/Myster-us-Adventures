@@ -5,6 +5,8 @@
 #include <poll.h>
 #include <unistd.h>
 #include <stdarg.h>
+#include <fcntl.h>
+#include <errno.h>
 #include "include/macro.h"
 #include "include/struct.h"
 #include "include/usual.h"
@@ -24,28 +26,49 @@ void clear_part(int line, int column) {
 void cursor_move(char direction, int num) {
     printf("\033[%d%c", num, direction);
 }
-int is_str_empty(){
-    struct pollfd fd;
-    fd.fd = STDIN_FILENO;
-    fd.events = POLLIN; // "There is data to read."
-    fd.revents = 0;
-    int ret = poll(&fd, 1, 0);
-    if (ret > 0 && (fd.revents & POLLIN != 0))  {
-        return 0;
+int /* 0: success -1: error */
+setBlockingFD(int fileDescriptor,
+              int blocking)
+{
+    int r=fcntl(fileDescriptor,F_GETFL);
+    if(r==-1)
+    {
+        perror("fcntl(F_GETFL)");
+        return -1;
     }
-    else {
-        return 1;
+    int flags=(blocking ? r & ~O_NONBLOCK : r | O_NONBLOCK);
+    r=fcntl(fileDescriptor,F_SETFL,flags);
+    if(r==-1)
+    {
+        perror("fcntl(F_SETFL)");
+        return -1;
     }
+    return 0;
 }
-// Va vider le "buffer" pour éviter les fuites de donnée quand on fait des getchar notamment
-void flush_input_buffer() {
-    int c;
 
-    //vérifie que le buffer n'est pas vide
-    if(is_str_empty()==0){
-        while ((c = getchar()) != '\n' && c != EOF);
+void
+discardInput(void)
+{
+    setBlockingFD(STDIN_FILENO, 0);
+    for(;;)
+    {
+        int c=fgetc(stdin);
+        if(c==EOF)
+        {
+            if(errno==EAGAIN)
+            {
+                //vide
+            }
+            break;
+        }
+        else
+        {
+            //pas vide
+        }
     }
+    setBlockingFD(STDIN_FILENO, 1);
 }
+
 
 // retourne un simple int d'un seul caractère, utile pour les cas de choix pour par exemple de 1 à 5, moins
 // d'utilisations de ressources qu'un scanf
@@ -63,8 +86,7 @@ void commentary(char tab[]) { // tab est la chaine de caractère désiré en com
 void waiting() {
     commentary("(Press 'enter' to continue..)");
     getchar();
-    getchar();
-    flush_input_buffer();
+    discardInput();
 }
 
 //permet de créer un fichier de rapport de crash si il y en a un
