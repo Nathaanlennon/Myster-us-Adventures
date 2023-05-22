@@ -86,3 +86,17 @@ void write_crash_report(const char* error_message) {
     printf("Le rapport de crash a été créé : %s\n", filename);
 }
 
+//permet de print le contenu d'un fichier dans le terminal
+void printFile(char filename[]){
+    FILE *file = fopen(filename, "r");
+    if (file == NULL){
+        write_crash_report("cannot open file");
+        exit(0);
+    }
+
+    char character;
+    while ((character=fgetc(file)) != EOF){
+        printf ("%c", character);
+    }
+    fclose(file);
+}

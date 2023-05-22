@@ -2,10 +2,148 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
 #include "include/macro.h"
-#include "include/usual.h"
+#include "usual.c"
+
+// Structure pour une case du plateau de jeu
+typedef struct {
+    char symbol[10];
+    int flipped; //variable booléenne qui vaut 1 si la case est retournée, 0 sinon
+    int emptied; //variable booléenne qui vaut 1 si la case est vidée (monstre battu/objet pris), 0 sinon
+} Square;
+
+typedef struct {
+    int number; //numéro du joueur
+    char symbol[10]; //symbole du joueur
+    int weapon; //arme antique attribuée
+
+    int start_x; //case de départ attribuée abscisse
+    int start_y; //case de départ attribuée ordonnée
+    int position_x; //position durant le tour abscicsse
+    int position_y; //position durant le tour abscicsse
+
+    int score; //booléen qui vaudra 1 si la victoire est remportée, 0 sinon
+    int flip_cards; //nombre de cartes retournées au cours de la partie
+    int killed_monsters; //nombre de monstres tués au cours de la partie
+    int total_treasures; //nombre de trésors trouvés au cours de la partie
+
+    int ancientWeapon_found; //booléen si l'arme antique a été trouvée (condition nécessaire à la victoire)
+    int treasure_found; //booléen si au moins 1 trésor a été trouvé (condition nécessaire à la victoire)
+
+    char name[];
+    //color mais j'ai la flemme pour l'instant
+} Player;
+
+//Menu qui va être remplacé par Nathan, c'est triste
+int menu(){
+    int bouton_d = 0;
+    int nombre_p = 0 ;
+    do {
+        printf("Bienvenue voyageur(s) ! \nSouhaitez-vous jouer ? Appuyez sur 1. \nSouhaitez-vous accéder aux scores ? Appuyez sur 2. ");
+        scanf("%d", &bouton_d);
+        printf("\n\n");
+    }while(bouton_d <=0 || bouton_d >= 3);
 
 
+    if(bouton_d == 1){
+        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
+        scanf("%d", &nombre_p);
+        printf("\n\n");
+        if(nombre_p<=1 || nombre_p>=5){
+            do{
+                printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
+                scanf("%d", &nombre_p);
+                printf("\n\n");
+            }while(nombre_p<=1 || nombre_p>=5);
+
+        }
+        printf("C'est parti ! Bonne chance à vous <3"); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
+        printf("\n\n");
+    }
+    else if(bouton_d == 2){
+        printFile("scores.txt");
+    }
+    return nombre_p;
+}
+
+void score(Player* player){
+    printf("Voici votre score :\n%d cartes retournées\n%d monstres tués\n%d de trésors trouvés\n", player->flip_cards, player->killed_monsters, player->total_treasures);
+}
+
+//Enregistre un joueur et ses scores dans le fichier des scores. Si le joueur est déjà enregistré dans le fichier, met à jour ses scores
+void updatePlayerStats(Player* player){
+    FILE* file = fopen("scores.txt", "r+");
+    if (file == NULL){ //si le fichier n'existe pas, le créer
+        file = fopen("scores.txt", "w");
+        if (file == NULL){
+            write_crash_report("failed to create file");
+            exit(1);
+        }
+    }
+
+    char line[100]; //on estime que les lignes ne feront pas plus de 100 caractères
+    int found = 0;
+
+    int numGames = 0;
+    int victories = 0;
+    int killedMonsters = 0;
+    int flippedCards = 0;
+    int treasuresFound = 0;
+
+    long int cursorPositionStart;
+
+    //recherche du joueur dans le fichier
+    while (fgets(line, sizeof(line), file) != NULL){
+        if (strstr(line, player->name) != NULL){ //rechercher une sous chaine nom du joueur dans la chaine complète de la ligne
+            found = 1;
+
+            cursorPositionStart = ftell(file);
+
+            fgets(line, sizeof(line), file); //lire la prochaine ligne
+            sscanf(line, "Nombre de parties jouées : %d",&numGames); // récupérer la valeur à cette ligne
+
+            fgets(line, sizeof(line), file);
+            sscanf(line, "Victoires : %d",&victories);
+
+            fgets(line, sizeof(line), file);
+            sscanf(line, "Monstres terrassés : %d",&killedMonsters);
+
+            fgets(line, sizeof(line), file);
+            sscanf(line, "Trésors découverts : %d",&treasuresFound);
+
+            fgets(line, sizeof(line), file);
+            sscanf(line, "Cases révélées : %d",&flippedCards);
+        }
+    }
+
+    //si le joueur n'a pas été trouvé, l'ajouter
+    if (!found){
+        fprintf(file, "%s\n", player->name);
+        fprintf(file, "Nombre de parties jouées : %4d\n", 1); //%4d pour laisser de la place quand le nombre de digits de la valeur augmente sinon ça cause un problème dans l'écriture des données pour le prochain personnage
+        fprintf(file, "Victoires : %4d\n", player->score);
+        fprintf(file, "Monstres terrassés : %4d\n", player->killed_monsters);
+        fprintf(file, "Trésors découverts : %4d\n", player->total_treasures);
+        fprintf(file, "Cases révélées : %4d\n", player->flip_cards);
+    }
+    else{ //si le joueur a été trouvé, mettre à jour ses scores
+        fseek(file, cursorPositionStart, SEEK_SET);
+        fprintf(file, "Nombre de parties jouées : %4d\n", numGames+1);
+        fprintf(file, "Victoires : %4d\n", victories+player->score);
+        fprintf(file, "Monstres terrassés : %4d\n", killedMonsters+player->killed_monsters);
+        fprintf(file, "Trésors découverts : %4d\n", treasuresFound+player->total_treasures);
+        fprintf(file, "Cases révélées : %4d\n", flippedCards+player->flip_cards);
+    }
+    fseek(file, 0, SEEK_SET);
+    fclose(file);
+}
+
+//Enregistre tous les scores des joueurs de la partie. Fonction à mettre à la fin d'une partie pour éviter d'enregistrer des données d'une partie non terminée
+void registerScores(Player players[], int size){
+    for(int i=0;i<size;i++){
+        updatePlayerStats(&players[i]);
+    }
+}
 
 // Cherche l'indice du symbole de la case dans un tableau spécifié, renvoie l'indice de la première occurrence du symbole dans le tableau, sinon renvoie -1
 int SymbolIdInArray(Square square, const char array[][10], int size){
@@ -32,36 +170,6 @@ void random_placement(Square **board, int gridSize, const char tab[][10], int ta
         }while(SymbolIdInArray(board[randomRow][randomCol], monsters, 4) == -1); //vérification que la case choisie aléatoirement ne soit pas déjà une arme/trésor
         strcpy(board[randomRow][randomCol].symbol, tab[i]);
     }
-}
-//Menu
-int players_number(){
-    int nombre_p = 0 ;
-    printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
-    scanf("%d", &nombre_p);
-    printf("\n\n");
-    if(nombre_p<=1 || nombre_p>=5){
-        do{
-            printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
-            scanf("%d", &nombre_p);
-            printf("\n\n");
-        }while(nombre_p<=1 || nombre_p>=5);
-
-    }
-    clear_part(5,0);
-    printf("C'est parti ! Bonne chance à vous %s<3%s", C_RED, C_WHT); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
-    printf("\n\n");
-    return nombre_p;
-}
-
-
-
-Player nb_player(){
-    Player f;
-    printf("Quel est votre nom ?\n");
-    scanf("%s", f.name);
-    f.number += 1; /// ATTENTION LE PREMIER F.NUMBER = 2 A NE PAS OUBLIER POUR PLUS TARD ////
-    printf("\n\n");
-
 }
 
 //Initialisation de la map aléatoire de symboles
@@ -117,18 +225,6 @@ Square **create_board(int boardSize, int gridSize, const char monsters[][10], co
     return board;
 }
 
-void background(int i, int j){
-    for (int k = 0; k<i;k++){
-        for (int l=0;l<j;l++){
-            printf("%s ",B_BLK);
-        }
-        printf("\n");
-    }
-    cursor_move('A', 10);
-    clear_all();
-}
-
-
 //libération de la mémoire allouée pour le plateau
 void free_board(Square **board, int size) {
 
@@ -153,7 +249,7 @@ void init_player(Player* player, int num, const char* symbol, int start_x, int s
 
     player->number = num;
     strcpy(player->symbol, symbol);
-    clear_part(5,0);
+
     printf("Entrer un prénom pour le joueur %d : ", player->number);
     scanf("%s", player->name);
     flush_input_buffer(); //au cas où le joueur entre un nom avec des espaces
@@ -165,6 +261,11 @@ void init_player(Player* player, int num, const char* symbol, int start_x, int s
 
     player->ancientWeapon_found = 0;
     player->treasure_found = 0;
+
+    player->score = 0;
+    player->total_treasures = 0;
+    player->killed_monsters = 0;
+    player->flip_cards = 0;
 }
 
 void print_board(Square **board, int boardSize, Player* player) { //afficher le plateau avec le joueur actif
@@ -197,6 +298,30 @@ void print_board(Square **board, int boardSize, Player* player) { //afficher le 
     printf("\n");
 }
 
+////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
+void print_board_admin(Square **board, int boardSize, Player* player) { //print board mais on voit toutes les cases
+
+    if(board == NULL || player == NULL){
+        write_crash_report("pointer in parameters is NULL");
+        exit(1);
+    }
+
+    for (int i = 0; i < boardSize; i++) {
+        for (int j = 0; j < boardSize; j++) {
+            if(player->position_x == i && player->position_y == j){
+                printf("%s ", player->symbol);
+            }
+            else if(board[i][j].emptied == 1){
+                printf("%s ", EMPTY);
+            }
+            else {
+                printf("%s ", board[i][j].symbol);
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
 
 void weapon_choice(Player *player) {
 
@@ -243,8 +368,8 @@ void choose_coordinates(Square **board, int* x, int* y, int boardSize, int gridS
 }
 
 // Vérifie que l'arme choisie est correcte par rapport à l'ennemi affronté. Renvoie 1 si oui, 0 sinon
-int fight(Player player, int monster) {
-    if (player.weapon == monster) {
+int fight(Player* player, int monster) {
+    if (player->weapon == monster) {
         return 1;
     }
     return 0;
@@ -286,9 +411,10 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
     int symbolIdTreasures = SymbolIdInArray(board[*x][*y], treasures, 5);
 
     if(symbolIdMonsters != -1){ //si la carte retournée est un monstre, engager un combat
-        if(fight(*player, symbolIdMonsters)){ //le joueur a choisi la bonne arme contre ce monstre
+        if(fight(player, symbolIdMonsters)){ //le joueur a choisi la bonne arme contre ce monstre
             printf("Combat gagné !\n");
             board[*x][*y].emptied = 1;
+            //player->killedmonster +1
         }
         else{
             printf("Combat perdu !\n"); //le joueur n'a pas choisi la bonne arme contre ce monstre
@@ -304,6 +430,7 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
             case 0:
                 printf("Vous avez découvert un trésor !\n");
                 player->treasure_found = 1;
+                //player treasures total +1
                 break;
 
             case 1:
@@ -317,7 +444,7 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
 
                 int l,c;
                 choose_coordinates(board, &l, &c, boardSize, gridSize);
-                while((l == 1 && c == 3) || (l == 2 && c == 1) || (l == 5 && c == 2) || (l == 4 && c == 5)){ //interdiction de prendre les cases devant celles de départ
+                while((l == 1 && c == 4) || (l == 2 && c == 1) || (l == 5 && c == 2) || (l == 4 && c == 5)){ //interdiction de prendre les cases devant celles de départ
                     printf("Coordonnées invalides.");
                     choose_coordinates(board, &l, &c, boardSize, gridSize);
                 }
@@ -335,7 +462,28 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
     return 1;
 }
 
-//Déplacement d'un joueur et évènements
+//Vérifie si la case entrée est vidée (monstre a été tué), est le bord de la map, ou est une case de départ). Renvoie 1 si elle est l'une de ces conditions, 0 sinon.
+int CheckSquareInvalid(Square square) {
+    return (square.flipped == 1 || strcmp(square.symbol, " ") == 0 || strcmp(square.symbol, START) == 0);
+}
+
+//reset du plateau à la mort du joueur ou si le joueur est bloqué
+void reset(Square **board, int boardSize, int gridSize, Player* player){
+    for(int i = 1; i <= gridSize; i++){
+        for (int j = 1; j <= gridSize; j++){
+            board[i][j].flipped = 0;
+            board[i][j].emptied = 0;
+        }
+    }
+    player->position_x = player->start_x; //le joueur est remis à sa position de départ
+    player->position_y = player->start_y;
+    player->treasure_found = 0;
+    player->ancientWeapon_found = 0;
+    printf("Vous revenez à votre position de départ...\n");
+    print_board(board, boardSize, player);
+}
+
+//Déplacement d'un joueur et évènements = tour entier d'un joueur. Ne s'arrête qu'une fois que le joueur meurt
 void turn(Square **board, int boardSize, int gridSize, Player* player, const char monsters[][10], const char weapons[][10], const char treasures[][10]) {
 
     if(board == NULL || player == NULL){
@@ -343,8 +491,9 @@ void turn(Square **board, int boardSize, int gridSize, Player* player, const cha
         exit(1);
     }
 
-    int x, y;
+    weapon_choice(player);
 
+    int x, y;
     choose_coordinates(board, &x, &y, boardSize, gridSize); //saisie des coordonnées vers où se déplacer
     while(abs(x - player->position_x) > 1 //conditions pour n'avancer que d'une case adjacente à la position actuelle
             || abs(y - player->position_y) > 1
@@ -358,46 +507,27 @@ void turn(Square **board, int boardSize, int gridSize, Player* player, const cha
     if(event_manager(&x, &y, board, boardSize, gridSize, player, monsters, weapons, treasures)){ //déplacer le joueur sur la case choisie si il n'est pas mort
         player->position_x = x;
         player->position_y = y;
+        //player case +1
+
+        if(CheckSquareInvalid(board[player->position_x+1][player->position_y]) && CheckSquareInvalid(board[player->position_x-1][player->position_y])
+             && CheckSquareInvalid(board[player->position_x][player->position_y+1]) && CheckSquareInvalid(board[player->position_x][player->position_y-1])){
+            print_board(board, boardSize, player);
+            printf("Vous êtes bloqué dans le labyrinte...\n");
+            reset(board, boardSize, gridSize, player);
+        }
+        else{
+            print_board(board, boardSize, player);
+            turn(board, boardSize, gridSize, player, monsters, weapons, treasures);
+        }
     }
     else{
-        for(int i = 1; i <= gridSize; i++){ //reset du plateau à la mort du joueur
-            for (int j = 1; j <= gridSize; j++){
-                board[i][j].flipped = 0;
-                board[i][j].emptied = 0;
-            }
-        }
-        player->position_x = player->start_x; //le joueur est remis à sa position de départ
-        player->position_y = player->start_y;
-        printf("Vous revenez à votre position de départ...\n");
+        reset(board, boardSize, gridSize, player);
     }
-    print_board(board, boardSize, player);
-}
-int flip_card(Square **board, int size) {
-    int x, y;
-    int nb_card = 0;
-    do {
-        printf("Retourner quelle carte ? donner coordonnées x, y : ");
-        scanf("%d, %d", &x, &y);
-    } while (x < 0 || x > 4 || y < 0 || y > 4);
-
-    board[x][y].flipped = 1;
-    nb_card += 1;
-    return nb_card;
-}
-void next_player(Square **board, int size){
-    for (int i = 0; i < size; i++) {
-        for (int j = 0; j < size; j++) {
-            printf("%s ", HIDDEN);
-        }
-        printf("\n");
-    }
-///Player à la place ini///
 }
 
-int score(int cards, int monsters, int found){
-    printf("Voici votre score :\n%d cartes retournées\n%d monstres tués\n%d de trésors trouvés\n", cards, monsters, found);
-}
-void launch_game(){
+int main() {
+    srand(time(NULL));
+
     const char weapons[4][10] = {STICK, SWORD, DAGGER, SPELLBOOK}; //Symboles des armes
     const char treasures[5][10] = {CHEST, PORTAL, TOTEM, TOTEM, CHEST}; //Symboles des objets spéciaux (coffres, totems, portails)
     const char monsters[4][10] = {ZOMBIE, BASILISK, TROLL, HARPY}; //Symboles des monstres
@@ -406,65 +536,57 @@ void launch_game(){
     const int start_x[4] = {0, 2, 4, 6}; //abscisses des cases de départ de chaque joueur
     const int start_y[4] = {4, 0, 6, 2}; //ordonnées des cases de départ de chaque joueur
 
-    int cards = 0;
-
-    ///////////// MENU + NB DE PLAYER + NOM PLAYER ///////////
-    int i = 0;
-    clear_part(5,0);
-    int x = players_number();
-    Player players[4]; //liste des joueurs
-    printf("%d", x);
-    printf("\n\n");
-    do{
-        clear_part(5,0);
-        init_player(&players[i], i+1, adventurers[i], start_x[i], start_y[i]);
-        printf("Bienvenue %s !\n", players[i].name);
-        waiting();
-        i++;
-    }while(i<x);
-
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
     Square **board = create_board(BOARD_SIZE, GRID_SIZE, monsters, weapons, treasures);
 
+    ///////////// MENU + NB DE PLAYER + NOM PLAYER ///////////
+    /*int j = 0;
+    int x = menu();
+    printf("%d", x);
+    printf("\n\n");
+    do{
+        //modifier
+        j++;
+    }while(j<x);
+
+    //faire en sorte que la liste soit de taille dynamique selon le nombre de joueur choisi et initialiser le nombre de joueur nécessaire
+
+    */
+
+    Player players[4]; //liste des joueurs
+    for(int i=0; i<4; i++){  //initialisation de chaque joueur
+        init_player(&players[i], i+1, adventurers[i], start_x[i], start_y[i]);
+        printf("Bienvenue %s !\n", players[i].name);
+    }
+
+    ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
+    print_board_admin(board, BOARD_SIZE, &players[0]); //print board mais on voit toutes les cases
+    printf("\n\n");
 
     print_board(board, BOARD_SIZE, &players[0]);
 
-    ////////////        WIP TEST GAMEPLAY        ////////////
+    ////////////        WIP TEST GAMEPLAY VERSION SOLO        ////////////
     for (int i = 0; i < 40; i++) {
-        weapon_choice(&players[0]);
         turn(board, BOARD_SIZE, GRID_SIZE, &players[0], monsters, weapons, treasures);
     }
-    //score(cards, 1, 1);
-    ////////////        LIBERATION DE LA MEMOIRE        ////////////
-    free_board(board, BOARD_SIZE);
-}
 
-
-void title_screen() {
-    printf("%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
-    printf("\n\n\n%s[1] Let's play !\n[2] HightScore\n", C_WHT);
-    int choice;
-    while ((choice = getchar()) != EOF) {
-        switch (choice) {
-            case 49: // touche 1 pressée
-                launch_game();
-                //TODO:fonction qui lance le jeu
-                break;
-            case 50: // touche 2 pressée
-                //TODO:fonction qui lance higthscore
-                break;
-            default:
-                //aucun comportement prévu pour cette touche
-                break;
+    ////////////        WIP TEST GAMEPLAY        ////////////
+    /*for(int i=0; i< nb joueur; i++){
+        while(player[i]->treasure_found != 1 && player[i]->weapon_found != 1) {
+            for(int j=0; j< nb joueur; j++){
+                turn(board, BOARD_SIZE, GRID_SIZE, &players[j], monsters, weapons, treasures);
+                if(player[j]->treasure_found != 1 && player[j]->weapon_found != 1){
+                    message le joueur intel a gagné
+                    player[j]->score +1
+                    break;
+                }
+            }
         }
     }
-}
+     */
 
-int main() {
-    srand(time(NULL));
-    background(10,40);
-    title_screen();
+    ////////////        LIBERATION DE LA MEMOIRE        ////////////
+    free_board(board, BOARD_SIZE);
 
     return 0;
 }
-
