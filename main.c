@@ -67,12 +67,12 @@ int menu(){
     return nombre_p;
 }
 
-void score(Player* player){
-    printf("Voici votre score :\n%d cartes retournées\n%d monstres tués\n%d de trésors trouvés\n", player->flip_cards, player->killed_monsters, player->total_treasures);
+void score(Player player){
+    printf("Voici votre score :\n%d cartes retournées\n%d monstres tués\n%d de trésors trouvés\n", player.flip_cards, player.killed_monsters, player.total_treasures);
 }
 
 //Enregistre un joueur et ses scores dans le fichier des scores. Si le joueur est déjà enregistré dans le fichier, met à jour ses scores
-void updatePlayerStats(Player* player){
+void updatePlayerStats(Player player){
     FILE* file = fopen("scores.txt", "r+");
     if (file == NULL){ //si le fichier n'existe pas, le créer
         file = fopen("scores.txt", "w");
@@ -95,7 +95,7 @@ void updatePlayerStats(Player* player){
 
     //recherche du joueur dans le fichier
     while (fgets(line, sizeof(line), file) != NULL){
-        if (strstr(line, player->name) != NULL){ //rechercher une sous chaine nom du joueur dans la chaine complète de la ligne
+        if (strstr(line, player.name) != NULL){ //rechercher une sous chaine nom du joueur dans la chaine complète de la ligne
             found = 1;
 
             cursorPositionStart = ftell(file);
@@ -119,20 +119,20 @@ void updatePlayerStats(Player* player){
 
     //si le joueur n'a pas été trouvé, l'ajouter
     if (!found){
-        fprintf(file, "%s\n", player->name);
+        fprintf(file, "%s\n", player.name);
         fprintf(file, "Nombre de parties jouées : %4d\n", 1); //%4d pour laisser de la place quand le nombre de digits de la valeur augmente sinon ça cause un problème dans l'écriture des données pour le prochain personnage
-        fprintf(file, "Victoires : %4d\n", player->score);
-        fprintf(file, "Monstres terrassés : %4d\n", player->killed_monsters);
-        fprintf(file, "Trésors découverts : %4d\n", player->total_treasures);
-        fprintf(file, "Cases révélées : %4d\n", player->flip_cards);
+        fprintf(file, "Victoires : %4d\n", player.score);
+        fprintf(file, "Monstres terrassés : %4d\n", player.killed_monsters);
+        fprintf(file, "Trésors découverts : %4d\n", player.total_treasures);
+        fprintf(file, "Cases révélées : %4d\n", player.flip_cards);
     }
     else{ //si le joueur a été trouvé, mettre à jour ses scores
         fseek(file, cursorPositionStart, SEEK_SET);
         fprintf(file, "Nombre de parties jouées : %4d\n", numGames+1);
-        fprintf(file, "Victoires : %4d\n", victories+player->score);
-        fprintf(file, "Monstres terrassés : %4d\n", killedMonsters+player->killed_monsters);
-        fprintf(file, "Trésors découverts : %4d\n", treasuresFound+player->total_treasures);
-        fprintf(file, "Cases révélées : %4d\n", flippedCards+player->flip_cards);
+        fprintf(file, "Victoires : %4d\n", victories+player.score);
+        fprintf(file, "Monstres terrassés : %4d\n", killedMonsters+player.killed_monsters);
+        fprintf(file, "Trésors découverts : %4d\n", treasuresFound+player.total_treasures);
+        fprintf(file, "Cases révélées : %4d\n", flippedCards+player.flip_cards);
     }
     fseek(file, 0, SEEK_SET);
     fclose(file);
@@ -141,7 +141,7 @@ void updatePlayerStats(Player* player){
 //Enregistre tous les scores des joueurs de la partie. Fonction à mettre à la fin d'une partie pour éviter d'enregistrer des données d'une partie non terminée
 void registerScores(Player players[], int size){
     for(int i=0;i<size;i++){
-        updatePlayerStats(&players[i]);
+        updatePlayerStats(players[i]);
     }
 }
 
@@ -184,7 +184,7 @@ void initialize_map(Square **board, int boardSize, int gridSize, const char mons
         for (int j = 0; j < boardSize; j++) {
             board[i][j].emptied = 0;
             board[i][j].flipped = 1;
-            if((i == 0 && j == 4) || (i == 2 && j == 0) || (i == 6 && j == 2) || (i == 4 && j == 6)){
+            if((i == 0 && j == gridSize-1) || (i == 2 && j == 0) || (i == gridSize+1 && j == 2) || (i == gridSize-1 && j == gridSize+1)){
                 strcpy(board[i][j].symbol, START); //placement des cases de départ
             }
             else if((i%(boardSize-1) == 0) || (j%(boardSize-1) == 0)){
@@ -205,7 +205,7 @@ void initialize_map(Square **board, int boardSize, int gridSize, const char mons
 
 //Création et initialisation d'un tableau 2D de structures Square <=> création d'un plateau de jeu
 Square **create_board(int boardSize, int gridSize, const char monsters[][10], const char weapons[][10], const char treasures[][10]) {
-    Square **board = malloc(boardSize * sizeof(Square *));
+    Square **board = malloc(boardSize * sizeof(Square*));
     if (board == NULL) { //gérer si l'allocation a échoué
         write_crash_report("board memory allocation failed");
         exit(1);
@@ -268,19 +268,19 @@ void init_player(Player* player, int num, const char* symbol, int start_x, int s
     player->flip_cards = 0;
 }
 
-void print_board(Square **board, int boardSize, Player* player) { //afficher le plateau avec le joueur actif
+void print_board(Square **board, int boardSize, Player player) { //afficher le plateau avec le joueur actif
 
-    if(board == NULL || player == NULL){
+    if(board == NULL){
         write_crash_report("pointer in parameters is NULL");
         exit(1);
     }
 
     for (int i = 0; i < boardSize; i++) {
         for (int j = 0; j < boardSize; j++) {
-            if(player->position_x == i && player->position_y == j){ //afichage du joueur selon sa position
-                printf("%s ", player->symbol);
+            if(player.position_x == i && player.position_y == j){ //affichage du joueur selon sa position
+                printf("%s ", player.symbol);
             }
-            else if (board[i][j].flipped == 1){ //afichages des cartes retournées
+            else if (board[i][j].flipped == 1){ //affichage des cartes retournées
                 if(board[i][j].emptied == 1){ //monstres vaincus (cases vides)
                     printf("%s ", EMPTY);
                 }
@@ -299,17 +299,17 @@ void print_board(Square **board, int boardSize, Player* player) { //afficher le 
 }
 
 ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
-void print_board_admin(Square **board, int boardSize, Player* player) { //print board mais on voit toutes les cases
+void print_board_admin(Square **board, int boardSize, Player player) { //print board mais on voit toutes les cases
 
-    if(board == NULL || player == NULL){
+    if(board == NULL){
         write_crash_report("pointer in parameters is NULL");
         exit(1);
     }
 
     for (int i = 0; i < boardSize; i++) {
         for (int j = 0; j < boardSize; j++) {
-            if(player->position_x == i && player->position_y == j){
-                printf("%s ", player->symbol);
+            if(player.position_x == i && player.position_y == j){
+                printf("%s ", player.symbol);
             }
             else if(board[i][j].emptied == 1){
                 printf("%s ", EMPTY);
@@ -340,7 +340,7 @@ void weapon_choice(Player *player) {
     while (player->weapon < 0 || player->weapon > 3) {
         i++; // on incrémente le nombre d'erreurs
         if (i >= 3) { //trop d'erreurs alors le jeu prend des mesures
-            printf("Ok si vous insistez...pas d'armes...\n");
+            printf("Ok si vous insistez...pas d'arme...\n");
             player->weapon = -1;
             waiting();
             break;
@@ -366,7 +366,7 @@ void choose_coordinates(Square **board, int* x, int* y, int boardSize, int gridS
     scanf("%d,%d", x, y);
     flush_input_buffer();
     //vérification que les coordonnées saisies ne soient pas hors du tableau ou une case déjà retournée.
-    if (*x < boardSize - 1 - gridSize || *x > gridSize || *y < boardSize - 1 - gridSize || *y > gridSize || board[*x][*y].flipped == 1) {
+    if (*x < 1 || *x > gridSize || *y < 1 || *y > gridSize || board[*x][*y].flipped == 1) {
         printf("Coordonnées invalides.");
         choose_coordinates(board, x, y, boardSize, gridSize);
     }
@@ -383,8 +383,8 @@ int CheckIndexOutOfArray(int i, int arraySize){
 }
 
 //Fonction de choix de direction dans laquelle se déplacer
-void choose_direction(Square **board, Player* player, int* x, int* y, int boardSize, int gridSize) {
-    if(board == NULL || player == NULL || x == NULL ||y == NULL){
+void choose_direction(Square **board, Player player, int* x, int* y, int boardSize) {
+    if(board == NULL || x == NULL ||y == NULL){
         write_crash_report("pointer in parameters is NULL");
         exit(1);
     }
@@ -392,10 +392,10 @@ void choose_direction(Square **board, Player* player, int* x, int* y, int boardS
     printf("Choisir une direction :\n");
 
     //vérifie les directions possibles à proposer
-    int validUp = (CheckIndexOutOfArray(player->position_x-1, boardSize)) ? 0 : !CheckSquareInvalid(board[player->position_x-1][player->position_y]);
-    int validLeft = (CheckIndexOutOfArray(player->position_y-1, boardSize)) ? 0 : !CheckSquareInvalid(board[player->position_x][player->position_y-1]);
-    int validRight = (CheckIndexOutOfArray(player->position_y+1, boardSize)) ? 0 : !CheckSquareInvalid(board[player->position_x][player->position_y+1]);
-    int validDown = (CheckIndexOutOfArray(player->position_x+1, boardSize)) ? 0 : !CheckSquareInvalid(board[player->position_x+1][player->position_y]);
+    int validUp = (CheckIndexOutOfArray(player.position_x-1, boardSize)) ? 0 : !CheckSquareInvalid(board[player.position_x-1][player.position_y]);
+    int validLeft = (CheckIndexOutOfArray(player.position_y-1, boardSize)) ? 0 : !CheckSquareInvalid(board[player.position_x][player.position_y-1]);
+    int validRight = (CheckIndexOutOfArray(player.position_y+1, boardSize)) ? 0 : !CheckSquareInvalid(board[player.position_x][player.position_y+1]);
+    int validDown = (CheckIndexOutOfArray(player.position_x+1, boardSize)) ? 0 : !CheckSquareInvalid(board[player.position_x+1][player.position_y]);
 
     if(validUp){
         printf("Haut\n[8]\n");
@@ -424,27 +424,27 @@ void choose_direction(Square **board, Player* player, int* x, int* y, int boardS
     //envoie au reste du programme les coordonnées vers lesquelles le joueur veut se déplacer
     switch(input){
         case 8:
-            *x = player->position_x-1;
-            *y = player->position_y;
+            *x = player.position_x-1;
+            *y = player.position_y;
             break;
         case 6:
-            *x = player->position_x;
-            *y = player->position_y+1;
+            *x = player.position_x;
+            *y = player.position_y+1;
             break;
         case 4:
-            *x = player->position_x;
-            *y = player->position_y-1;
+            *x = player.position_x;
+            *y = player.position_y-1;
             break;
         case 2:
-            *x = player->position_x+1;
-            *y = player->position_y;
+            *x = player.position_x+1;
+            *y = player.position_y;
             break;
     }
 }
 
 // Vérifie que l'arme choisie est correcte par rapport à l'ennemi affronté. Renvoie 1 si oui, 0 sinon
-int fight(Player* player, int monster) {
-    if (player->weapon == monster) {
+int fight(Player player, int monster) {
+    if (player.weapon == monster) {
         return 1;
     }
     return 0;
@@ -479,14 +479,14 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
     }
 
     board[*x][*y].flipped = 1;
-    print_board(board, boardSize, player);
+    print_board(board, boardSize, *player);
 
     int symbolIdMonsters = SymbolIdInArray(board[*x][*y], monsters, 4);
     int symbolIdWeapons = SymbolIdInArray(board[*x][*y], weapons, 4);
     int symbolIdTreasures = SymbolIdInArray(board[*x][*y], treasures, 5);
 
     if(symbolIdMonsters != -1){ //si la carte retournée est un monstre, engager un combat
-        if(fight(player, symbolIdMonsters)){ //le joueur a choisi la bonne arme contre ce monstre
+        if(fight(*player, symbolIdMonsters)){ //le joueur a choisi la bonne arme contre ce monstre
             printf("Combat gagné !\n");
             board[*x][*y].emptied = 1;
             //player->killedmonster +1
@@ -519,7 +519,7 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
 
                 int l,c;
                 choose_coordinates(board, &l, &c, boardSize, gridSize);
-                while((l == 1 && c == 4) || (l == 2 && c == 1) || (l == 5 && c == 2) || (l == 4 && c == 5)){ //interdiction de prendre les cases devant celles de départ
+                while((l == 1 && c == gridSize-1) || (l == 2 && c == 1) || (l == gridSize && c == 2) || (l == gridSize-1 && c == gridSize)){ //interdiction de prendre les cases devant celles de départ
                     printf("Coordonnées invalides.");
                     choose_coordinates(board, &l, &c, boardSize, gridSize);
                 }
@@ -529,10 +529,9 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
                 board[l][c] = temp;
 
                 printf("Poof!\n");
-                print_board(board, boardSize, player);
+                print_board(board, boardSize, *player);
                 return 0;
         }
-
     }
     return 1;
 }
@@ -550,7 +549,7 @@ void reset(Square **board, int boardSize, int gridSize, Player* player){
     player->treasure_found = 0; //il doit retrouver son trésor et son arme à nouveau
     player->ancientWeapon_found = 0;
     printf("Vous revenez à votre position de départ...\n");
-    print_board(board, boardSize, player);
+    print_board(board, boardSize, *player);
 }
 
 //Déplacement d'un joueur et évènements = tour entier d'un joueur. Ne s'arrête qu'une fois que le joueur meurt
@@ -563,7 +562,7 @@ void turn(Square **board, int boardSize, int gridSize, Player* player, const cha
 
     weapon_choice(player); // choix de l'arme
     int x, y;
-    choose_direction(board, player, &x, &y, boardSize, gridSize); //choix de la direction dans laquelle se déplacer
+    choose_direction(board, *player, &x, &y, boardSize); //choix de la direction dans laquelle se déplacer
 
     if(event_manager(&x, &y, board, boardSize, gridSize, player, monsters, weapons, treasures)){ //déplacer le joueur sur la case choisie si il n'est pas mort et peut rejouer
         player->position_x = x;
@@ -573,18 +572,46 @@ void turn(Square **board, int boardSize, int gridSize, Player* player, const cha
         //avant de rejouer, vérification si le joueur est bloqué dans le labyrinthe
         if(CheckSquareInvalid(board[player->position_x+1][player->position_y]) && CheckSquareInvalid(board[player->position_x-1][player->position_y])
              && CheckSquareInvalid(board[player->position_x][player->position_y+1]) && CheckSquareInvalid(board[player->position_x][player->position_y-1])){
-            print_board(board, boardSize, player);
-            printf("Vous êtes bloqué dans le labyrinte...\n");
+            print_board(board, boardSize, *player);
+            printf("Vous êtes bloqué dans le labyrinthe...\n");
             reset(board, boardSize, gridSize, player);
         }
         else{
-            print_board(board, boardSize, player);
+            print_board(board, boardSize, *player);
             turn(board, boardSize, gridSize, player, monsters, weapons, treasures);
         }
     }
     else{ //cas où le joueur est mort ou a utilisé un totem de transmutation, ce qui réinitialise sa position et réinitialise la carte
         reset(board, boardSize, gridSize, player);
     }
+}
+
+int choose_board_dimensions(){
+    int dim;
+    do{
+        printf("Choisissez une dimension pour le labyrinthe (>= 5, version classique : 5) : ");
+        scanf("%d", &dim);
+        flush_input_buffer();
+
+        if (dim < 5 && dim > 0){
+            printf("Vous avez peur de vous perdre..?\n");
+        }
+        else if(dim <= 0){
+            printf("Euh... c'est embêtant... vous ne voulez pas jouer..?\n0 : En effet\n1 : Si\n");
+            int ans;
+            scanf("%d", &ans);
+            flush_input_buffer();
+            if(ans == 0){
+                printf("Euh... ok...\n");
+                waiting();
+                exit(1);
+            }
+        }
+        else if (dim > 15){
+            printf("Ça fait beaucoup là, non ?\n");
+        }
+    }while(dim < 5 || dim > 15);
+    return dim;
 }
 
 int main() {
@@ -595,11 +622,14 @@ int main() {
     const char monsters[4][10] = {ZOMBIE, BASILISK, TROLL, HARPY}; //Symboles des monstres
     const char adventurers[4][10] = {RANGER, THIEF, MAGICIAN, WARRIOR}; //Symboles des monstres
 
-    const int start_x[4] = {0, 2, 4, 6}; //abscisses des cases de départ de chaque joueur
-    const int start_y[4] = {4, 0, 6, 2}; //ordonnées des cases de départ de chaque joueur
+    int gridSize = choose_board_dimensions();
+    int boardSize = gridSize+2;
+
+    const int start_x[4] = {0, 2, gridSize-1, gridSize+1}; //abscisses des cases de départ de chaque joueur
+    const int start_y[4] = {gridSize-1, 0, gridSize+1, 2}; //ordonnées des cases de départ de chaque joueur
 
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
-    Square **board = create_board(BOARD_SIZE, GRID_SIZE, monsters, weapons, treasures);
+    Square **board = create_board(boardSize, gridSize, monsters, weapons, treasures);
 
     ///////////// MENU + NB DE PLAYER + NOM PLAYER ///////////
     /*int j = 0;
@@ -622,14 +652,14 @@ int main() {
     }
 
     ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
-    print_board_admin(board, BOARD_SIZE, &players[0]); //print board mais on voit toutes les cases
+    print_board_admin(board, boardSize, players[0]); //print board mais on voit toutes les cases
     printf("\n\n");
 
-    print_board(board, BOARD_SIZE, &players[0]);
+    print_board(board, boardSize, players[0]);
 
     ////////////        WIP TEST GAMEPLAY VERSION SOLO        ////////////
     for (int i = 0; i < 40; i++) {
-        turn(board, BOARD_SIZE, GRID_SIZE, &players[0], monsters, weapons, treasures);
+        turn(board, boardSize, gridSize, &players[0], monsters, weapons, treasures);
     }
 
     ////////////        WIP TEST GAMEPLAY        ////////////
@@ -648,7 +678,7 @@ int main() {
      */
 
     ////////////        LIBERATION DE LA MEMOIRE        ////////////
-    free_board(board, BOARD_SIZE);
+    free_board(board, boardSize);
 
     return 0;
 }
