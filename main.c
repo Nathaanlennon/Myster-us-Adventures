@@ -603,6 +603,7 @@ void turn(Square **board, int boardSize, int gridSize, Player* player, const cha
     }
 }
 
+
 int choose_board_dimensions(){
     int dim;
     do{
