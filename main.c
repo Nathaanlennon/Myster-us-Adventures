@@ -240,7 +240,7 @@ void free_board(Square **board, int size) {
 }
 
 //intialisation d'un joueur
-void init_player(Player* player, int num, const char* symbol, int start_x, int start_y) {
+int init_player(Player* player, int num, const char* symbol, int start_x, int start_y) {
 
     if(symbol == NULL || player == NULL){
         write_crash_report("pointer in parameters is NULL");
@@ -323,7 +323,7 @@ void print_board_admin(Square **board, int boardSize, Player player) { //print b
     printf("\n");
 }
 
-void weapon_choice(Player *player) {
+int weapon_choice(Player *player) {
     if(player == NULL){
         write_crash_report("pointer in parameters is NULL");
         exit(1);
@@ -544,12 +544,29 @@ void reset(Square **board, int boardSize, int gridSize, Player* player){
             board[i][j].emptied = 0; //les monstres reviennent à la vie
         }
     }
-    player->position_x = player->start_x; //le joueur est remis à sa position de départ
-    player->position_y = player->start_y;
+    int next = 1;
+    player->number +=1;
+    printf("%s ", player->symbol);
+    if(next == 1){
+        player->position_x = player->start_x+2;
+        player->position_y = player->start_y-4;
+    }
+    if(next == 2){
+        player->position_x = player->start_x+4;
+        player->position_y = player->start_y+2;
+    }
+    if(next == 3){
+        player->position_x = player->start_x+4;
+        player->position_y = player->start_y+2;
+    }
+    next +=1;
     player->treasure_found = 0; //il doit retrouver son trésor et son arme à nouveau
     player->ancientWeapon_found = 0;
-    printf("Vous revenez à votre position de départ...\n");
+    printf("Vous venez de perdre...\n");
+    printf("A vous de jouer %s \n", player->name);
     print_board(board, boardSize, *player);
+
+
 }
 
 //Déplacement d'un joueur et évènements = tour entier d'un joueur. Ne s'arrête qu'une fois que le joueur meurt
@@ -632,50 +649,43 @@ int main() {
     Square **board = create_board(boardSize, gridSize, monsters, weapons, treasures);
 
     ///////////// MENU + NB DE PLAYER + NOM PLAYER ///////////
-    /*int j = 0;
+    int j = 0;
     int x = menu();
     printf("%d", x);
     printf("\n\n");
+    Player players[x];
     do{
-        //modifier
+        init_player(&players[j], j+1, adventurers[j], start_x[j], start_y[j]);
+        printf("Bienvenue %s !\n", players[j].name);
         j++;
     }while(j<x);
 
-    //faire en sorte que la liste soit de taille dynamique selon le nombre de joueur choisi et initialiser le nombre de joueur nécessaire
-
-    */
-
-    Player players[4]; //liste des joueurs
-    for(int i=0; i<4; i++){  //initialisation de chaque joueur
-        init_player(&players[i], i+1, adventurers[i], start_x[i], start_y[i]);
-        printf("Bienvenue %s !\n", players[i].name);
-    }
 
     ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
-    print_board_admin(board, boardSize, players[0]); //print board mais on voit toutes les cases
-    printf("\n\n");
+   // print_board_admin(board, boardSize, players[0]); //print board mais on voit toutes les cases
+    //printf("\n\n");
 
-    print_board(board, boardSize, players[0]);
+    //print_board(board, boardSize, players[0]);
 
     ////////////        WIP TEST GAMEPLAY VERSION SOLO        ////////////
-    for (int i = 0; i < 40; i++) {
-        turn(board, boardSize, gridSize, &players[0], monsters, weapons, treasures);
-    }
+    //for (int i = 0; i < 40; i++) {
+        //turn(board, boardSize, gridSize, &players[0], monsters, weapons, treasures);
+    //5}
 
     ////////////        WIP TEST GAMEPLAY        ////////////
-    /*for(int i=0; i< nb joueur; i++){
-        while(player[i]->treasure_found != 1 && player[i]->weapon_found != 1) {
-            for(int j=0; j< nb joueur; j++){
+    for(int i=0; i< 5; i++){
+        while(players[i].treasure_found != 1 && players[i].ancientWeapon_found != 1) {
+            for(int j=0; j< 5; j++){
                 turn(board, BOARD_SIZE, GRID_SIZE, &players[j], monsters, weapons, treasures);
-                if(player[j]->treasure_found != 1 && player[j]->weapon_found != 1){
-                    message le joueur intel a gagné
-                    player[j]->score +1
+                if(players[j].treasure_found == 1 && players[j].ancientWeapon_found == 1){
+                    printf("Bravo %s ! Vous venez de remporter cette partie ! \n", players[j].name);
+                    players[j].score +=1;
                     break;
                 }
             }
         }
     }
-     */
+
 
     ////////////        LIBERATION DE LA MEMOIRE        ////////////
     free_board(board, boardSize);
