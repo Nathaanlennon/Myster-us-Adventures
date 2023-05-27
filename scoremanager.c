@@ -7,6 +7,7 @@
 
 //permet de print le contenu d'un fichier dans le terminal. Retourne 1 si l'affichage s'est bien passé, 0 sinon.
 int printFile(char filename[]){
+    clear_all();
     FILE *file = fopen(filename, "r");
     if (file == NULL){
         return 0;

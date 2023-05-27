@@ -93,7 +93,7 @@ int choose_board_dimensions(){
     return dim;
 }
 
-void game(int boardSize, int gridSize, Player players[], int n, const Entity weapons[], const Entity monsters[], const Entity treasures[]){
+void game(int boardSize, int gridSize, Player players[], int n, const Entity weapons[], const Entity monsters[], const Entity treasures[], long begin_time){
 
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
     Square **board = create_board(boardSize, gridSize, monsters, weapons, treasures);
@@ -101,16 +101,16 @@ void game(int boardSize, int gridSize, Player players[], int n, const Entity wea
     ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
     print_board_total(board, boardSize); //print board mais on voit toutes les cases
     printf("\n\n");
-    waiting();
 
     ////////////        GAMEPLAY        ////////////
     int win = 0;
     while(win != 1) {
         for(int j=0; j<n; j++){
+            waiting();
             clear_all();
             printf("À vous de jouer %s !\n\n", players[j].name);
             print_board(board, boardSize, players[j]);
-            turn(board, boardSize, gridSize, &players[j], monsters, weapons, treasures);
+            turn(board, boardSize, gridSize, &players[j], monsters, weapons, treasures, begin_time);
             if(players[j].treasure_found == 1 && players[j].ancientWeapon_found == 1){
                 win = 1;
                 break;
@@ -133,7 +133,8 @@ void game(int boardSize, int gridSize, Player players[], int n, const Entity wea
         discardInput();
     }while(ans != '1' && ans != '0');
     if(ans == '1'){
-        game(boardSize, gridSize, players, n, weapons, monsters, treasures);
+        long begin_time = get_time();
+        game(boardSize, gridSize, players, n, weapons, monsters, treasures, begin_time);
     }
 }
 
@@ -164,9 +165,9 @@ void launch_game(){
         waiting();
     }while(count<n);
     printf("C'est parti ! Bonne chance à vous %s\u2665%s\n", C_RED, C_WHT);
-    waiting();
+    long begin_time= get_time();
 
-    game(boardSize, gridSize, players, n, weapons, monsters, treasures);
+    game(boardSize, gridSize, players, n, weapons, monsters, treasures, begin_time);
 }
 
 

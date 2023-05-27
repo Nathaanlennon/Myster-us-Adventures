@@ -23,7 +23,6 @@ void weapon_choice(Player *player) {
         if (i >= 3) { //trop d'erreurs alors le jeu prend des mesures
             printf("Ok si vous insistez...pas d'arme...\n");
             player->weapon = -1;
-            waiting();
             break;
         }
         cursor_move('A', 1); //déplace le curseur d'une case vers le haut pour remplacer la dernière ligne
@@ -68,21 +67,24 @@ void choose_direction(Square **board, Player player, int* x, int* y, int boardSi
     int validDown = (CheckIndexOutOfArray(player.position_x+1, boardSize)) ? 0 : !CheckSquareInvalid(board[player.position_x+1][player.position_y]);
 
     if(validUp){
-        printf("Haut\n[8]\n");
+        printf("         Haut\n          [8]\n");
     }
     if(validLeft){
         printf("Gauche [4]");
-    }
-    if(validRight){
-        printf(" [6] Droite");
+        if(validRight){
+            printf("   [6] Droite");
+        }
+    }else if(validRight){
+            printf("             [6] Droite");
     }
     if(validDown){
-        printf("\n[2]\nBas");
+        printf("\n          [2]\n          Bas");
     }
 
     printf("\n");
     int input;
     scanf("%d",&input);
+    discardInput();
 
     //vérification que la direction entrée soit valide
     while ((input != 8 || validUp == 0) && (input != 6 || validRight == 0) && (input != 4 || validLeft == 0) && (input != 2 || validDown == 0)) {
@@ -222,7 +224,7 @@ void reset(Square **board, int boardSize, int gridSize, Player* player){
 }
 
 //Déplacement d'un joueur et évènements = tour entier d'un joueur. Ne s'arrête qu'une fois que le joueur meurt
-void turn(Square **board, int boardSize, int gridSize, Player* player, const Entity monsters[], const Entity weapons[], const Entity treasures[]) {
+void turn(Square **board, int boardSize, int gridSize, Player* player, const Entity monsters[], const Entity weapons[], const Entity treasures[], long begin_time) {
 
     if(board == NULL || player == NULL){
         write_crash_report("pointer in parameters is NULL");
@@ -230,7 +232,10 @@ void turn(Square **board, int boardSize, int gridSize, Player* player, const Ent
     }
 
     if(player->treasure_found == 1 && player->ancientWeapon_found == 1){
+        long end_time = get_time();
         printf("Bravo %s ! Vous venez de remporter cette partie !\n", player->name);
+        printf("La partie a duré ");
+        format_time(compare_time(begin_time, end_time));
         player->score +=1;
         return;
     }
@@ -238,12 +243,14 @@ void turn(Square **board, int boardSize, int gridSize, Player* player, const Ent
     weapon_choice(player); // choix de l'arme
     int x, y;
     choose_direction(board, *player, &x, &y, boardSize); //choix de la direction dans laquelle se déplacer
-
+    waiting();
+    clear_all();
     if(event_manager(&x, &y, board, boardSize, gridSize, player, monsters, weapons, treasures)){ //déplacer le joueur sur la case choisie si il n'est pas mort et peut rejouer
         player->position_x = x;
         player->position_y = y;
         player->flip_cards+=1;
-
+        waiting();
+        clear_all();
         //avant de rejouer, vérification si le joueur est bloqué dans le labyrinthe
         if(CheckSquareInvalid(board[player->position_x+1][player->position_y]) && CheckSquareInvalid(board[player->position_x-1][player->position_y])
            && CheckSquareInvalid(board[player->position_x][player->position_y+1]) && CheckSquareInvalid(board[player->position_x][player->position_y-1])){
@@ -255,7 +262,7 @@ void turn(Square **board, int boardSize, int gridSize, Player* player, const Ent
         }
         else{
             print_board(board, boardSize, *player);
-            turn(board, boardSize, gridSize, player, monsters, weapons, treasures);
+            turn(board, boardSize, gridSize, player, monsters, weapons, treasures, begin_time);
         }
     }
     else{ //cas où le joueur est mort ou a utilisé un totem de transmutation, ce qui réinitialise sa position et réinitialise la carte
