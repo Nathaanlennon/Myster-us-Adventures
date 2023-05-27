@@ -40,43 +40,18 @@ typedef struct {
     //color mais j'ai la flemme pour l'instant
 } Player;
 
-//Menu qui va être remplacé par Nathan, c'est triste
-int menu(){
-    int bouton_d = 0;
-    int nombre_p = 0 ;
-    do {
-        printf("Bienvenue voyageur(s) ! \nSouhaitez-vous jouer ? Appuyez sur 1. \nSouhaitez-vous accéder aux scores ? Appuyez sur 2. ");
-        scanf("%d", &bouton_d);
-        printf("\n\n");
+//Demander le nombre de joueurs
+int number_players(){
+    int number_p = 0 ;
+    printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ? Très bien ! Mais avant tout !\nCombien êtes-vous ? : ");
+    scanf("%d", &number_p);
+    discardInput();
+    while (number_p < 2 || number_p > 4) {
+        printf("Vous vous êtes probablement trompé... Un sacré début d'aventure ma parole !\nRecommençons, combien êtes-vous? : ");
+        scanf("%d", &number_p);
         discardInput();
-    }while(bouton_d <=0 || bouton_d >= 3);
-
-    if(bouton_d == 1){
-        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ? Très bien ! Mais avant tout !\nCombien êtes-vous ? ");
-        scanf("%d", &nombre_p);
-        printf("\n\n");
-        discardInput();
-        if(nombre_p<=1 || nombre_p>=5){
-            do{
-                printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
-                scanf("%d", &nombre_p);
-                discardInput();
-            }while(nombre_p<=1 || nombre_p>=5);
-
-        }
-        printf("C'est parti ! Bonne chance à vous <3"); // Il faut retirer le coeur je trouvais ça drôle sur le moment T-T
-        printf("\n\n");
     }
-    else if(bouton_d == 2){
-        if(printFile("scores.txt") == 0){
-            printf("Mais personne n'a jamais joué encore... Retournons au menu.\n");
-            menu();
-        }
-        else{
-            printFile("scores.txt");
-        }
-    }
-    return nombre_p;
+    return number_p;
 }
 
 void score(Player player){
@@ -653,9 +628,8 @@ int choose_board_dimensions(){
     return dim;
 }
 
-int main() {
-    srand(time(NULL));
 
+void launch_game(){
     const Entity weapons[5] = {{STICK,C_GRN},{SPELLBOOK, C_BLU}, {SWORD,C_ORE},{DAGGER,C_LGR}}; //Symboles des armes
     const Entity treasures[5] = {{CHEST,C_YEL}, {PORTAL,C_MAG},{TOTEM,C_MAG}, {TOTEM,C_MAG},CHEST,C_YEL}; //Symboles des objets spéciaux (coffres, totems, portails)
     const Entity monsters[4] = {{ZOMBIE, C_RED}, {BASILISK, C_RED}, {TROLL, C_RED}, {HARPY, C_RED}}; //Symboles des monstres
@@ -670,16 +644,17 @@ int main() {
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
     Square **board = create_board(boardSize, gridSize, monsters, weapons, treasures);
 
-    ///////////// MENU + NB DE PLAYER + NOM PLAYER ///////////
+    ///////////// number_players + NB DE PLAYER + NOM PLAYER ///////////
     int count = 0;
-    int x = menu();
-    printf("\n\n");
+    int x = number_players();
     Player players[x];
     do{
         init_player(&players[count], count+1, adventurers[count], start_x[count], start_y[count]);
         printf("Bienvenue %s !\n", players[count].name);
         count++;
     }while(count<x);
+
+    printf("C'est parti ! Bonne chance à vous %s\u2665%s\n", C_RED, C_WHT);
 
     ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
     print_board_total(board, boardSize); //print board mais on voit toutes les cases
@@ -689,7 +664,7 @@ int main() {
     int win = 0;
     while(win != 1) {
         for(int j=0; j<x; j++){
-            printf("À vous de jouer %s\n", players[j].name);
+            printf("À vous de jouer %s !\n", players[j].name);
             print_board(board, boardSize, players[j]);
             turn(board, boardSize, gridSize, &players[j], monsters, weapons, treasures);
             if(players[j].treasure_found == 1 && players[j].ancientWeapon_found == 1){
@@ -706,6 +681,41 @@ int main() {
 
     ////////////        LIBERATION DE LA MEMOIRE        ////////////
     free_board(board, boardSize);
+}
+
+void open_scores(){
+    if(printFile("scores.txt") == 0){
+        printf("Mais personne n'a jamais joué encore... Retournons au menu.\n");
+    }
+    else{
+        printFile("scores.txt");
+    }
+}
+
+void title_screen() {
+    printf("%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
+    printf("\n\n\n%s[1] Let's play !\n[2] HightScore\n", C_WHT);
+    int choice;
+    while ((choice = getchar()) != EOF) {
+        switch (choice) {
+            case '1':
+                launch_game();
+                //TODO:fonction qui lance le jeu
+                break;
+            case '2':
+                open_scores();
+                break;
+            default:
+                //aucun comportement prévu pour cette touche
+                break;
+        }
+    }
+}
+
+int main() {
+    srand(time(NULL));
+    background(20, 40);
+    title_screen();
 
     return 0;
 }
