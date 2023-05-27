@@ -51,9 +51,8 @@ int menu(){
         discardInput();
     }while(bouton_d <=0 || bouton_d >= 3);
 
-
     if(bouton_d == 1){
-        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ?\nTrès bien !\nMais avant tout ! Combien êtes-vous ? ");
+        printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ? Très bien ! Mais avant tout !\nCombien êtes-vous ? ");
         scanf("%d", &nombre_p);
         printf("\n\n");
         discardInput();
@@ -61,7 +60,6 @@ int menu(){
             do{
                 printf("Vous vous êtes probablement trompé ...\nUn sacré début d'aventure ma parole !\nRecommençons, combien êtes_vous? ");
                 scanf("%d", &nombre_p);
-                printf("\n\n");
                 discardInput();
             }while(nombre_p<=1 || nombre_p>=5);
 
@@ -675,7 +673,6 @@ int main() {
     ///////////// MENU + NB DE PLAYER + NOM PLAYER ///////////
     int count = 0;
     int x = menu();
-    printf("%d", x);
     printf("\n\n");
     Player players[x];
     do{
