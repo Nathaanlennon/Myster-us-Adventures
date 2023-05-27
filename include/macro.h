@@ -33,6 +33,10 @@
 #define C_CYN "\033[36m" // Caractère cyan
 #define C_WHT "\033[37m" // Caractère blanc
 
+#define C_BRN "\033[0;33m" // Caractère marron
+#define C_ORE "\033[38;2;255;165;0m" // caractère orange
+#define C_LGR "\033[38;2;173;173;173m" //caractère gris clair (light grey)
+
 #define B_BLK "\033[40m" // Fond noir
 #define B_RED "\033[41m" // Fond rouge
 #define B_GRN "\033[42m" // Fond vert
