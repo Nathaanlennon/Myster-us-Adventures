@@ -32,15 +32,15 @@ void tuto_menu_text() {
 void object_menu_text(){
     clear_all();
     printf("%sLes objets : \n"
-           "%s[1] l'épée flamboyante \n"
-           "%s[2] la dague du sommeil \n"
-           "%s[3] le grimoire interdit \n"
-           "%s[4] le baton de controle des familiers \n"
-           "%s[5] le trésor \n"
-           "%s[6] le totem de transmutation \n"
-           "%s[7] le portail magique\n"
+           "%s[1] l'épée flamboyante %s\n"
+           "%s[2] la dague du sommeil %s\n"
+           "%s[3] le grimoire interdit %s\n"
+           "%s[4] le baton de controle des familiers %s\n"
+           "%s[5] le trésor %s\n"
+           "%s[6] le totem de transmutation %s\n"
+           "%s[7] le portail magique %s\n"
            "%s[8] retour vers le menu du tutoriel%s\n",
-           C_MAG, C_ORE, C_LGR, C_LBE, C_GRN, C_YEL, C_MAG, C_MAG,C_RED, C_WHT);
+           C_MAG, C_ORE,SWORD, C_LGR,DAGGER, C_LBE, SPELLBOOK, C_GRN, STICK, C_YEL, CHEST, C_MAG, TOTEM, C_MAG,PORTAL,C_RED, C_WHT);
 }
 void object_menu(){
     char choice;
@@ -227,7 +227,8 @@ void tuto_menu() {
                 break;
             case '4':
                 printf("%sLes monstres :%s\n", C_PUE, C_WHT);
-                printf("Ils sont au nombre de 4 espèces : le Basilic ; le Zombie ; le Troll ; la Harpie\n");
+                printf("Ils sont au nombre de 4 espèces : le Basilic %s; le Zombie %s; le Troll %s; la Harpie %s\n",
+                       BASILISK, ZOMBIE, TROLL, HARPY);
                 printf("\nLes Basilics, serpents géants à la morsure mortelle et au regard pétrifiant. On dit que "
                        "seule une surface réfléchissante permet de le vaincre...\n");
                 printf("\nLe zombie, imperturbable face à toute arme conventionnelle, succombe uniquement devant "
@@ -251,8 +252,8 @@ void tuto_menu() {
 }
 void title_screen_text(){
     clear_all();
-    printf("%s%sWelcome to %sThe Myster'us Adventures\n", B_BLK, C_WHT, C_RED);
-    printf("\n\n\n%s[1] Let's play !\n[2] HightScore\n[3] Tuto\n", C_WHT);
+    printf("%s%sBienvenue dans %sMyster'us Adventures\n", B_BLK, C_WHT, C_RED);
+    printf("\n\n\n%s[1] JOUER\n[2] SCORE\n[3] TUTORIEL\n", C_WHT);
 }
 void title_screen() {
     title_screen_text();

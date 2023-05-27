@@ -6,8 +6,10 @@ Trésors découverts :    2
 Cases révélées :   10
 2
 Nombre de parties jouées :    2
-Nombre de parties jouées :    1
+Nombre de parties jouées :    2
 Victoires :    0
 Monstres terrassés :    0
 Trésors découverts :    0
 Cases révélées :    0
+ :    3
+Cases révélées :    7

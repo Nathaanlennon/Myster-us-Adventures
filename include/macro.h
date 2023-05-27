@@ -4,7 +4,7 @@
 
 #define STICK "\u222B"
 #define DAGGER "\u2197"
-#define SWORD "\u2694"
+#define SWORD "\u2E38"
 #define SPELLBOOK "\u2A70"
 
 #define CHEST "\u229F"
@@ -12,9 +12,9 @@
 #define TOTEM "\u25EE"
 
 #define TROLL "\u2689"
-#define BASILISK "\u267E"
-#define ZOMBIE "\u2623"
-#define HARPY "\u29EC"
+#define BASILISK "\u221E"
+#define ZOMBIE "\u2629"
+#define HARPY "\u269A"
 
 #define RANGER "\u21A3"
 #define WARRIOR "\u26C9"

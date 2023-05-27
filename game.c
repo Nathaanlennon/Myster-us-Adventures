@@ -98,9 +98,9 @@ void game(int boardSize, int gridSize, Player players[], int n, const Entity wea
     ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
     Square **board = create_board(boardSize, gridSize, monsters, weapons, treasures);
 
-    ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
+   /* ////////////        DEBUG BOARD        ////////////
     print_board_total(board, boardSize); //print board mais on voit toutes les cases
-    printf("\n\n");
+    printf("\n\n");*/
 
     ////////////        GAMEPLAY        ////////////
     int win = 0;
