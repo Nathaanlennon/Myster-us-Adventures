@@ -278,6 +278,9 @@ void title_screen() {
             case '3': // touche 3 pressée
                 tuto_menu(); //ouvre le menu tutoriel
                 break;
+            case '8':
+                printf("%sMerci Jeuxjeux20\n", C_LBE);
+                waiting();
             default:
                 //aucun comportement prévu pour cette touche
                 break;
