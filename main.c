@@ -700,7 +700,6 @@ void title_screen() {
         switch (choice) {
             case '1':
                 launch_game();
-                //TODO:fonction qui lance le jeu
                 break;
             case '2':
                 open_scores();
