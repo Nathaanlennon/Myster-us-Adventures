@@ -27,47 +27,39 @@ void clear_part(int line, int column) {
 void cursor_move(char direction, int num) {
     printf("\033[%d%c", num, direction);
 }
-int /* 0: success -1: error */
-setBlockingFD(int fileDescriptor, int blocking)
-{
+
+/* 0: success -1: error */
+int setBlockingFD(int fileDescriptor, int blocking){
     int r=fcntl(fileDescriptor,F_GETFL);
-    if(r==-1)
-    {
+    if(r==-1){
         perror("fcntl(F_GETFL)");
         return -1;
     }
     int flags=(blocking ? r & ~O_NONBLOCK : r | O_NONBLOCK);
     r=fcntl(fileDescriptor,F_SETFL,flags);
-    if(r==-1)
-    {
+    if(r==-1){
         perror("fcntl(F_SETFL)");
         return -1;
     }
     return 0;
 }
 
-void discardInput(void)
-{
+void discardInput(void){
     setBlockingFD(STDIN_FILENO, 0);
-    for(;;)
-    {
+    for(;;){
         int c=fgetc(stdin);
-        if(c==EOF)
-        {
-            if(errno==EAGAIN)
-            {
+        if(c==EOF){
+            if(errno==EAGAIN){
                 //vide
             }
             break;
         }
-        else
-        {
+        else{
             //pas vide
         }
     }
     setBlockingFD(STDIN_FILENO, 1);
 }
-
 
 // retourne un simple int d'un seul caractère, utile pour les cas de choix pour par exemple de 1 à 5, moins
 // d'utilisations de ressources qu'un scanf
@@ -107,19 +99,34 @@ void write_crash_report(const char* error_message) {
     printf("Le rapport de crash a été créé : %s\n", filename);
 }
 
-//permet de print le contenu d'un fichier dans le terminal
-void printFile(char filename[]){
-    FILE *file = fopen(filename, "r");
-    if (file == NULL){
-        write_crash_report("cannot open file");
-        exit(0);
+// Cherche l'indice du symbole de la case dans un tableau spécifié, renvoie l'indice de la première occurrence du symbole dans le tableau, sinon renvoie -1
+int SymbolIdInArray(Square square, const Entity array[], int size){
+    for(int i = 0; i<size; i++){
+        if(strcmp(square.symbol.name, array[i].name) == 0)
+            return i; // retourne le premier indice correspondant si trouvé dans le tableau
     }
+    return -1; //si pas dans le tableau
+}
 
-    char character;
-    while ((character=fgetc(file)) != EOF){
-        printf ("%c", character);
+void background(int i, int j) {
+    for (int k = 0; k < i; k++) {
+        for (int l = 0; l < j; l++) {
+            printf("%s ", B_BLK);
+        }
+        printf("\n");
     }
-    fclose(file);
+    cursor_move('A', 10);
+    clear_all();
+}
+
+//Vérifie si la case entrée est déjà retournée, ou est le bord de la map, ou est une case de départ. Renvoie 1 si elle est l'une de ces conditions, 0 sinon.
+int CheckSquareInvalid(Square square) {
+    return (square.flipped == 1 || strcmp(square.symbol.name, " ") == 0 || strcmp(square.symbol.name, START) == 0);
+}
+
+//Vérifie si l'index spécifié est valide pour être recherché dans un tableau. Renvoie 1 si hors du tableau, 0 sinon.
+int CheckIndexOutOfArray(int i, int arraySize){
+    return (i < 0 || i >= arraySize);
 }
 
 long get_time(){

@@ -1,7 +1,3 @@
-//
-// Created by cacac on 12/05/2023.
-//
-
 #ifndef MYSTER_US_ADVENTURES_STRUCT_H
 #define MYSTER_US_ADVENTURES_STRUCT_H
 
@@ -11,6 +7,7 @@ typedef struct{
     char name[10];
     char color[20];
 }Entity;
+
 typedef struct {
     int number; //numéro du joueur
     Entity symbol; //symbole du joueur

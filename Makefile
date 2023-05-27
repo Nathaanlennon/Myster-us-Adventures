@@ -8,7 +8,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra
 
 # Liste des fichiers source
-SOURCES =main.c usual.c menus/tuto.c
+SOURCES = main.c usual.c menus/tuto.c menu.c init.c scoremanager.c gameplay.c game.c
 
 # Liste des fichiers objets correspondant aux fichiers source
 OBJECTS = $(SOURCES:.c=.o)

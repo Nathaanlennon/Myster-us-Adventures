@@ -1,6 +1,3 @@
-#define GRID_SIZE 5 //taille du labyrinthe
-#define BOARD_SIZE 7 //taille du plateau entier (avec les cases de départ incluses)
-
 #define HIDDEN "\u25A6"
 #define EMPTY "\u25A2"
 #define START "\u25A7"
