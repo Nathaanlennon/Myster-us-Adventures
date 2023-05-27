@@ -6,8 +6,9 @@
 #include "include/macro.h"
 #include "include/usual.h"
 
+//ouvrir et afficher le fichier des scores
 void open_scores(){
-    if(printFile("scores.txt") == 0){
+    if(printFile("scores.txt") == 0){ // si il n'y a pas encore de fichier des scores car personne n'a jamais joué
         printf("Mais personne n'a jamais joué encore... Retournons au menu.\n");
     }
     else{
@@ -16,10 +17,9 @@ void open_scores(){
     waiting();
 }
 
-
-
+//texte récurrent du menu tuto
 void tuto_menu_text() {
-    clear_all();
+    clear_all();//vide le terminal pour propreté
     printf("%sBienvenue dans l'incroyable %sTutoriel%s !\n", C_WHT, C_YEL, C_WHT);
     printf("\n\nC'est très simple, ici nous allons parler des règles et des différents éléments\n");
     printf("\n\n%s[1] Objectif\n"
@@ -29,8 +29,10 @@ void tuto_menu_text() {
            "%s[5] Les objets\n"
            "%s[6] Retourner au menu principal%s\n", C_YEL, C_GRN, C_BLU, C_PUE, C_MAG, C_RED, C_WHT);
 }
+
+//texte récurrent du menu objet
 void object_menu_text(){
-    clear_all();
+    clear_all();//vide le terminal pour propreté
     printf("%sLes objets : \n"
            "%s[1] l'épée flamboyante %s\n"
            "%s[2] la dague du sommeil %s\n"
@@ -44,10 +46,10 @@ void object_menu_text(){
 }
 void object_menu(){
     char choice;
-    object_menu_text();
+    object_menu_text();//texte récurrent menu objet
     while ((choice = getchar()) != EOF) {
-        discardInput();
-        clear_all();
+        discardInput();//vider le buffer
+        clear_all();//clear l'ecran pour que ça soit propre
         switch (choice) {
             case '1':
                 printf("%sL'épée flamboyante : %s\nAu temps où les dieux nordiques marchaient parmi les hommes, une "
@@ -174,19 +176,21 @@ void object_menu(){
                 waiting();
                 break;
             case '8':
-                return;
+                return;//quitter le sous menu objet pour revenir dans le menu tutoriel
             default:
+                //rien par défaut
                 break;
         }
-        tuto_menu_text();
+        tuto_menu_text();//texte récurrent
     }
 }
 
+//le menu du tuto, il comporte toutes les explications du jeu
 void tuto_menu() {
-    tuto_menu_text();
+    tuto_menu_text();//le texte récurrent du menu
     int choice;
     while ((choice = getchar()) != EOF) {
-        discardInput();
+        discardInput();//vider le buffer
         switch (choice) {
             case '1':
                 printf("%sL'objectif :%s\n", C_YEL, C_WHT);
@@ -243,32 +247,36 @@ void tuto_menu() {
                 object_menu();
                 break;
             case '6':
-                return;
+                return; //on quitte le menu pour revenir dans title screen
             default:
+                //rien par défaut
                 break;
         }
-        tuto_menu_text();
+        tuto_menu_text(); //le texte récurrent
     }
 }
+
+//le printf récurrent de title screen, utilisé dans une boucle
 void title_screen_text(){
     clear_all();
     printf("%s%sBienvenue dans %sMyster'us Adventures\n", B_BLK, C_WHT, C_RED);
-    printf("\n\n\n%s[1] JOUER\n[2] SCORE\n[3] TUTORIEL\n", C_WHT);
+    printf("\n\n\n%s[1] JOUER\n[2] SCORES\n[3] TUTORIEL\n", C_WHT);
 }
+
 void title_screen() {
-    title_screen_text();
+    title_screen_text(); //le texte du title screen, il est aussi print dans la boucle
     int choice;
     while ((choice = getchar()) != EOF) {
-        discardInput();
+        discardInput(); //vide le buffer
         switch (choice) {
             case '1': // touche 1 pressée
-                launch_game();
+                launch_game(); //lance le jeu
                 break;
             case '2': // touche 2 pressée
-                open_scores();
+                open_scores(); //ouvre le menu de score
                 break;
             case '3': // touche 3 pressée
-                tuto_menu();
+                tuto_menu(); //ouvre le menu tutoriel
                 break;
             default:
                 //aucun comportement prévu pour cette touche

@@ -108,6 +108,7 @@ int SymbolIdInArray(Square square, const Entity array[], int size){
     return -1; //si pas dans le tableau
 }
 
+//crée un background noir pour éviter les problemes de terminal pas noir car on utiliser des couleurs spécifiques
 void background(int i, int j) {
     for (int k = 0; k < i; k++) {
         for (int l = 0; l < j; l++) {
@@ -129,13 +130,17 @@ int CheckIndexOutOfArray(int i, int arraySize){
     return (i < 0 || i >= arraySize);
 }
 
+//récupère le temps depuis le 1er janvier 1970 à 00:00:00 UTC
 long get_time(){
     return time(NULL);
 }
+
+//compare le temps entre t1 et t2 pour retourner combien de temps est passé entre les deux
 int compare_time(long t1, long t2){
     return (int)(t2-t1);
 }
 
+//transforme le nombre de secondes en heure minute seconde et le print
 void format_time(int seconds) {
     int hours = seconds / 3600;
     int minutes = (seconds % 3600) / 60;

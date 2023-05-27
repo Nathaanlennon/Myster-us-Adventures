@@ -5,6 +5,7 @@
 #include "include/usual.h"
 #include "include/game.h"
 
+//Choix de l'arme avant déplacement
 void weapon_choice(Player *player) {
     if(player == NULL){
         write_crash_report("pointer in parameters is NULL");
@@ -15,7 +16,6 @@ void weapon_choice(Player *player) {
     printf("1 : Torche\n2 : Bouclier réfléchissant\n3 : Hâche\n4 : Arc\n");
     int i = 0; // i est le nombre d'erreurs que le joueur commet. C'est-à-dire quand ils donnent autre chose que demandé
 
-    //scanf("%d", &(player->weapon));
     player->weapon = getint()-1;
     discardInput();
     while (player->weapon < 0 || player->weapon > 3) {
@@ -28,12 +28,12 @@ void weapon_choice(Player *player) {
         cursor_move('A', 1); //déplace le curseur d'une case vers le haut pour remplacer la dernière ligne
         printf("Bien essayé mais vous n'avez pas d'autres armes.\n");
         player->weapon = getint()-1;
-        //scanf("%d", &(player->weapon));
         discardInput();
     }
 }
 
-//Choisir des coordonnées x et y ne sortant pas du tableau (allant de 0 à 6). Sera utilisée pour la téléportation et pour le totem de transmutation.
+//Choisir des coordonnées x et y (ligne, colonne) ne sortant pas du tableau (allant de 0 à 6). Sera utilisée pour la
+// téléportation et pour le totem de transmutation.
 void choose_coordinates(Square **board, int* x, int* y, int boardSize, int gridSize) {
 
     if(board == NULL || x == NULL ||y == NULL){
@@ -150,7 +150,7 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
         exit(1);
     }
 
-    board[*x][*y].flipped = 1;
+    board[*x][*y].flipped = 1;//dévoiler la case aux coordonnées précisées
     print_board(board, boardSize, *player);
 
     int symbolIdMonsters = SymbolIdInArray(board[*x][*y], monsters, 4);
@@ -160,8 +160,8 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
     if(symbolIdMonsters != -1){ //si la carte retournée est un monstre, engager un combat
         if(fight(*player, symbolIdMonsters)){ //le joueur a choisi la bonne arme contre ce monstre
             printf("Combat gagné !\n");
-            board[*x][*y].emptied = 1;
-            player->killed_monsters += 1;
+            board[*x][*y].emptied = 1; //vider la case
+            player->killed_monsters += 1; //compteur de monstres tués au cours de la partie pour ce joueur
         }
         else{
             printf("Combat perdu !\n"); //le joueur n'a pas choisi la bonne arme contre ce monstre
@@ -183,14 +183,14 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
             case 1:
                 printf("Vous avez découvert un portail magique de téléportation. Vous pouvez choisir n'importe quelle case encore cachée où vous téléporter. Mais avant cela...\n");
                 weapon_choice(player);
-                choose_coordinates(board, x, y, boardSize, gridSize);
+                choose_coordinates(board, x, y, boardSize, gridSize); //choisir ligne,colonne vers où se téléporter
                 return event_manager(x, y, board, boardSize, gridSize, player, monsters, weapons, treasures);
 
             case 2:
                 printf("Vous avez découvert un totem de transmutation. Vous pouvez choisir n'importe quelle case encore cachée pour l'échanger avec le totem. Cela mettra fin à votre tour.\n");
 
                 int l,c;
-                choose_coordinates(board, &l, &c, boardSize, gridSize);
+                choose_coordinates(board, &l, &c, boardSize, gridSize);  //choisir ligne,colonne de la case avec laquelle échanger le totem de transmutation
                 while((l == 1 && c == gridSize-1) || (l == 2 && c == 1) || (l == gridSize && c == 2) || (l == gridSize-1 && c == gridSize)){ //interdiction de prendre les cases devant celles de départ
                     printf("Coordonnées invalides.");
                     choose_coordinates(board, &l, &c, boardSize, gridSize);
@@ -207,7 +207,6 @@ int event_manager(int* x, int* y, Square **board, int boardSize, int gridSize, P
     }
     return 1;
 }
-
 //reset du plateau à la mort du joueur ou si le joueur est bloqué
 void reset(Square **board, int boardSize, int gridSize, Player* player){
     for(int i = 1; i <= gridSize; i++){
@@ -231,12 +230,13 @@ void turn(Square **board, int boardSize, int gridSize, Player* player, const Ent
         exit(1);
     }
 
+    //check si la partie est gagnée avant de rejouer
     if(player->treasure_found == 1 && player->ancientWeapon_found == 1){
-        long end_time = get_time();
+        long end_time = get_time(); // fin du chrono
         printf("Bravo %s ! Vous venez de remporter cette partie !\n", player->name);
         printf("La partie a duré ");
         format_time(compare_time(begin_time, end_time));
-        player->score +=1;
+        player->score +=1; //son score augmente (nombre de victoires)
         return;
     }
 
