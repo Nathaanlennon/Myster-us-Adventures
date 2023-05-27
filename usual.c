@@ -64,7 +64,7 @@ void discardInput(void){
 // retourne un simple int d'un seul caractère, utile pour les cas de choix pour par exemple de 1 à 5, moins
 // d'utilisations de ressources qu'un scanf
 int getint() {
-    return getchar() - '0'; // ascii du chiffre transformé en le chiffre lui meme en lui enlevant le code de 0
+    return (getchar() - '0'); // ascii du chiffre transformé en le chiffre lui meme en lui enlevant le code de 0
 }
 
 // permet d'écrire un "commentaire" d'une couleur differente et de remettre à la bonne couleur pour la suite

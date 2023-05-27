@@ -6,7 +6,7 @@
 #include "include/macro.h"
 #include "include/usual.h"
 #include "include/menu.h"
-#include "include/tuto.h"
+
 
 int main() {
     srand(time(NULL));

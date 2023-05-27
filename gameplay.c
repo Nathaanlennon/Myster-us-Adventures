@@ -15,10 +15,9 @@ void weapon_choice(Player *player) {
     printf("1 : Torche\n2 : Bouclier réfléchissant\n3 : Hâche\n4 : Arc\n");
     int i = 0; // i est le nombre d'erreurs que le joueur commet. C'est-à-dire quand ils donnent autre chose que demandé
 
-    scanf("%d", &(player->weapon));
-    //player->weapon = getint()-1;  PROBLEME
+    //scanf("%d", &(player->weapon));
+    player->weapon = getint()-1;
     discardInput();
-    player->weapon -= 1;
     while (player->weapon < 0 || player->weapon > 3) {
         i++; // on incrémente le nombre d'erreurs
         if (i >= 3) { //trop d'erreurs alors le jeu prend des mesures
@@ -29,10 +28,9 @@ void weapon_choice(Player *player) {
         }
         cursor_move('A', 1); //déplace le curseur d'une case vers le haut pour remplacer la dernière ligne
         printf("Bien essayé mais vous n'avez pas d'autres armes.\n");
-        //player->weapon = getint()-1; PROBLEME
-        scanf("%d", &(player->weapon));
+        player->weapon = getint()-1;
+        //scanf("%d", &(player->weapon));
         discardInput();
-        player->weapon -= 1;
     }
 }
 

@@ -12,11 +12,11 @@
 int number_players(){
     int number_p = 0 ;
     printf("Etes-vous prêt à parcourir ce labyrinthe rempli d'épreuves ? Très bien ! Mais avant tout !\nCombien êtes-vous ? : ");
-    scanf("%d", &number_p);
+    number_p=getint();
     discardInput();
     while (number_p < 2 || number_p > 4) {
         printf("Vous vous êtes probablement trompé... Un sacré début d'aventure ma parole !\nRecommençons, combien êtes-vous? : ");
-        scanf("%d", &number_p);
+        number_p = getint();
         discardInput();
     }
     return number_p;
@@ -27,7 +27,6 @@ void print_board(Square **board, int boardSize, Player player) { //afficher le p
         write_crash_report("pointer in parameters is NULL");
         exit(1);
     }
-
     for (int i = 0; i < boardSize; i++) {
         for (int j = 0; j < boardSize; j++) {
             if(player.position_x == i && player.position_y == j){ //affichage du joueur selon sa position
@@ -79,13 +78,12 @@ int choose_board_dimensions(){
         }
         else if(dim <= 0){
             printf("Euh... c'est embêtant... vous ne voulez pas jouer..?\n0 : En effet\n1 : Si\n");
-            int ans;
-            scanf("%d", &ans);
+            char ans = getchar();
             discardInput();
-            if(ans == 0){
+            if(ans == '0'){
                 printf("Euh... ok...\n");
                 waiting();
-                exit(1);
+                return 0;
             }
         }
         else if (dim > 15){
@@ -103,12 +101,14 @@ void game(int boardSize, int gridSize, Player players[], int n, const Entity wea
     ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
     print_board_total(board, boardSize); //print board mais on voit toutes les cases
     printf("\n\n");
+    waiting();
 
-    ////////////        WIP TEST GAMEPLAY        ////////////
+    ////////////        GAMEPLAY        ////////////
     int win = 0;
     while(win != 1) {
         for(int j=0; j<n; j++){
-            printf("À vous de jouer %s !\n", players[j].name);
+            clear_all();
+            printf("À vous de jouer %s !\n\n", players[j].name);
             print_board(board, boardSize, players[j]);
             turn(board, boardSize, gridSize, &players[j], monsters, weapons, treasures);
             if(players[j].treasure_found == 1 && players[j].ancientWeapon_found == 1){
@@ -126,13 +126,13 @@ void game(int boardSize, int gridSize, Player players[], int n, const Entity wea
     ////////////        LIBERATION DE LA MEMOIRE        ////////////
     free_board(board, boardSize);
 
-    int ans;
+    char ans;
     do{
         printf("Rejouer ?\n0: Non\n1 : Oui\n");
-        scanf("%d", &ans);
+        ans=getchar();
         discardInput();
-    }while(ans != 1 && ans != 0);
-    if(ans == 1){
+    }while(ans != '1' && ans != '0');
+    if(ans == '1'){
         game(boardSize, gridSize, players, n, weapons, monsters, treasures);
     }
 }
@@ -141,9 +141,12 @@ void launch_game(){
     const Entity weapons[5] = {{STICK,C_GRN},{SPELLBOOK, C_BLU}, {SWORD,C_ORE},{DAGGER,C_LGR}}; //Symboles des armes
     const Entity treasures[5] = {{CHEST,C_YEL}, {PORTAL,C_MAG},{TOTEM,C_MAG}, {TOTEM,C_MAG},CHEST,C_YEL}; //Symboles des objets spéciaux (coffres, totems, portails)
     const Entity monsters[4] = {{ZOMBIE, C_RED}, {BASILISK, C_RED}, {TROLL, C_RED}, {HARPY, C_RED}}; //Symboles des monstres
-    const Entity adventurers[4] = {{RANGER,C_GRN},{MAGICIAN, C_BLU}, {WARRIOR,C_ORE},{THIEF,C_LGR}}; //Symboles des monstres
+    const Entity adventurers[4] = {{RANGER,C_GRN},{MAGICIAN, C_BLU}, {WARRIOR,C_ORE},{THIEF,C_LGR}}; //Symboles des aventuriers
 
     int gridSize = choose_board_dimensions();
+    if(gridSize == 0){
+        return;
+    }
     int boardSize = gridSize+2;
 
     const int start_x[4] = {0, 2, gridSize+1, gridSize-1}; //ligne des cases de départ de chaque joueur
@@ -158,9 +161,10 @@ void launch_game(){
         init_player(&players[count], count+1, adventurers[count], start_x[count], start_y[count]);
         printf("Bienvenue %s !\n", players[count].name);
         count++;
+        waiting();
     }while(count<n);
-
     printf("C'est parti ! Bonne chance à vous %s\u2665%s\n", C_RED, C_WHT);
+    waiting();
 
     game(boardSize, gridSize, players, n, weapons, monsters, treasures);
 }
