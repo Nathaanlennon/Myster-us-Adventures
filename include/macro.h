@@ -24,22 +24,30 @@
 #define THIEF "\u26B7"
 #define MAGICIAN "\u22C7"
 
-#define C_BLK "\033[30m" // Caractère noir
-#define C_RED "\033[31m" // Caractère rouge
-#define C_GRN "\033[32m" // Caractère vert
-#define C_YEL "\033[33m" // Caractère jaune
-#define C_BLU "\033[34m" // Caractère bleu
-#define C_MAG "\033[35m" // Caractère magenta
-#define C_CYN "\033[36m" // Caractère cyan
-#define C_WHT "\033[37m" // Caractère blanc
+#define C_BLK "\033[38;2;0;0;0m" // Caractère noir
+#define C_RED "\033[38;2;255;0;0m" // Caractère rouge
+#define C_GRN "\033[38;2;63;156;0m" // Caractère vert
+#define C_YEL "\033[38;2;255;216;0m" // Caractère jaune
+#define C_BLU "\033[38;2;23;86;211m" // Caractère bleu
+#define C_MAG "\033[38;2;255;0;255m" // Caractère magenta
+#define C_CYN "\033[38;2;0;255;255m" // Caractère cyan
+#define C_WHT "\033[38;2;255;255;255m" // Caractère blanc
 
-#define B_BLK "\033[40m" // Fond noir
-#define B_RED "\033[41m" // Fond rouge
-#define B_GRN "\033[42m" // Fond vert
-#define B_YEL "\033[43m" // Fond jaune
-#define B_BLU "\033[44m" // Fond bleu
-#define B_MAG "\033[45m" // Fond magenta
-#define B_CYN "\033[46m" // Fond cyan
-#define B_WHT "\033[47m" // Fond blanc
+#define C_BRN "\033[38;2;107;42m" // Caractère marron
+#define C_ORE "\033[38;2;255;165;0m" // caractère orange
+#define C_LGR "\033[38;2;173;173;173m" //caractère gris clair (light grey)
+#define C_LBE "\033[38;2;0;94;255m" //caractère bleu ciel
+#define C_PUE "\033[38;2;144;0;255m" //caractère violet
+#define C_PEH "\033[38;2;255;209;167m" //caractère pêche
+
+#define B_BLK "\033[48;2;0;0;0m" // Fond noir
+#define B_RED "\033[48;2;255;0;0m" // Fond rouge
+#define B_GRN "\033[48;2;63;156;0m" // Fond vert
+#define B_YEL "\033[48;2;255;216;0m" // Fond jaune
+#define B_BLU "\033[48;2;23;86;211m" // Fond bleu
+#define B_MAG "\033[48;2;168;0;147m" // Fond magenta
+#define B_CYN "\033[48;2;0;255;255m" // Fond cyan
+#define B_WHT "\033[48;2;255;255;255m" // Fond blanc
+
 
 

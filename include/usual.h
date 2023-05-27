@@ -16,4 +16,7 @@ void commentary(char tab[]);
 void waiting();
 void write_crash_report(const char* error_message);
 void printFile(char filename[]);
+long get_time();
+int compare_time(long t1, long t2);
+void format_time(int seconds);
 #endif //MYSTER_US_ADVENTURES_USUAL_H

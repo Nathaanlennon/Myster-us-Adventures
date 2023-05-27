@@ -5,6 +5,7 @@
 #include <poll.h>
 #include <unistd.h>
 #include <stdarg.h>
+#include <time.h>
 #include <fcntl.h>
 #include <errno.h>
 #include "include/macro.h"
@@ -27,8 +28,7 @@ void cursor_move(char direction, int num) {
     printf("\033[%d%c", num, direction);
 }
 int /* 0: success -1: error */
-setBlockingFD(int fileDescriptor,
-              int blocking)
+setBlockingFD(int fileDescriptor, int blocking)
 {
     int r=fcntl(fileDescriptor,F_GETFL);
     if(r==-1)
@@ -46,8 +46,7 @@ setBlockingFD(int fileDescriptor,
     return 0;
 }
 
-void
-discardInput(void)
+void discardInput(void)
 {
     setBlockingFD(STDIN_FILENO, 0);
     for(;;)
@@ -84,7 +83,7 @@ void commentary(char tab[]) { // tab est la chaine de caractère désiré en com
 
 // permet de faire un "entrer pour continuer", "presser une touche pour continuer"
 void waiting() {
-    commentary("(Press 'enter' to continue..)");
+    commentary("(Appuyez sur Entrée pour continuer..)");
     getchar();
     discardInput();
 }
@@ -121,4 +120,19 @@ void printFile(char filename[]){
         printf ("%c", character);
     }
     fclose(file);
+}
+
+long get_time(){
+    return time(NULL);
+}
+int compare_time(long t1, long t2){
+    return (int)(t2-t1);
+}
+
+void format_time(int seconds) {
+    int hours = seconds / 3600;
+    int minutes = (seconds % 3600) / 60;
+    int remaining_seconds = (seconds % 3600) % 60;
+
+    printf("%d heures, %d minutes et %d secondes\n", hours, minutes, remaining_seconds);
 }
