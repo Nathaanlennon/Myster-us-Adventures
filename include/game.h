@@ -1,7 +1,7 @@
 #ifndef MYSTER_US_ADVENTURES_GAME_H
 #define MYSTER_US_ADVENTURES_GAME_H
 #include <stdio.h>
-#include "include/struct.h"
+#include "struct.h"
 
 int number_players();
 void print_board(Square **board, int boardSize, Player player);

@@ -1,7 +1,6 @@
 #ifndef MYSTER_US_ADVENTURES_GAMEPLAY_H
 #define MYSTER_US_ADVENTURES_GAMEPLAY_H
 #include <stdio.h>
-
 #include "struct.h"
 
 void weapon_choice(Player *player);

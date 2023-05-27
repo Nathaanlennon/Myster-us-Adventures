@@ -3,13 +3,8 @@
 #include <time.h>
 
 #include "include/macro.h"
-#include "include/struct.h"
 #include "include/usual.h"
-#include "include/init.h"
-#include "include/scoremanager.h"
 #include "include/menu.h"
-#include "include/gameplay.h"
-#include "include/game.h"
 
 int main() {
     srand(time(NULL));
