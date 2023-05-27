@@ -555,8 +555,6 @@ void reset(Square **board, int boardSize, int gridSize, Player* player){
     player->position_y = player->start_y;
     player->treasure_found = 0; //il doit retrouver son trésor et son arme à nouveau
     player->ancientWeapon_found = 0;
-    printf("Vous venez de perdre...\n");
-    print_board(board, boardSize, *player);
 }
 
 //Déplacement d'un joueur et évènements = tour entier d'un joueur. Ne s'arrête qu'une fois que le joueur meurt
@@ -588,6 +586,8 @@ void turn(Square **board, int boardSize, int gridSize, Player* player, const Ent
             print_board(board, boardSize, *player);
             printf("Vous êtes bloqué dans le labyrinthe...\n");
             reset(board, boardSize, gridSize, player);
+            printf("Vous retournez au début...\n");
+            print_board(board, boardSize, *player);
         }
         else{
             print_board(board, boardSize, *player);
@@ -596,6 +596,8 @@ void turn(Square **board, int boardSize, int gridSize, Player* player, const Ent
     }
     else{ //cas où le joueur est mort ou a utilisé un totem de transmutation, ce qui réinitialise sa position et réinitialise la carte
         reset(board, boardSize, gridSize, player);
+        printf("Vous retournez au début...\n");
+        print_board(board, boardSize, *player);
     }
 }
 
@@ -628,6 +630,47 @@ int choose_board_dimensions(){
     return dim;
 }
 
+void game(int boardSize, int gridSize, Player players[], int n, const Entity weapons[], const Entity monsters[], const Entity treasures[]){
+
+    ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
+    Square **board = create_board(boardSize, gridSize, monsters, weapons, treasures);
+
+    ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
+    print_board_total(board, boardSize); //print board mais on voit toutes les cases
+    printf("\n\n");
+
+    ////////////        WIP TEST GAMEPLAY        ////////////
+    int win = 0;
+    while(win != 1) {
+        for(int j=0; j<n; j++){
+            printf("À vous de jouer %s !\n", players[j].name);
+            print_board(board, boardSize, players[j]);
+            turn(board, boardSize, gridSize, &players[j], monsters, weapons, treasures);
+            if(players[j].treasure_found == 1 && players[j].ancientWeapon_found == 1){
+                win = 1;
+                break;
+            }
+        }
+    }
+    print_board_total(board, boardSize); //print board mais on voit toutes les cases
+    registerScores(players, n);
+
+    for(int i = 0; i < n ; i++){
+        reset(board, boardSize, gridSize, &players[i]);
+    }
+    ////////////        LIBERATION DE LA MEMOIRE        ////////////
+    free_board(board, boardSize);
+
+    int ans;
+    do{
+        printf("Rejouer ?\n0: Non\n1 : Oui\n");
+        scanf("%d", &ans);
+        discardInput();
+    }while(ans != 1 && ans != 0);
+    if(ans == 1){
+        game(boardSize, gridSize, players, n, weapons, monsters, treasures);
+    }
+}
 
 void launch_game(){
     const Entity weapons[5] = {{STICK,C_GRN},{SPELLBOOK, C_BLU}, {SWORD,C_ORE},{DAGGER,C_LGR}}; //Symboles des armes
@@ -641,46 +684,20 @@ void launch_game(){
     const int start_x[4] = {0, 2, gridSize+1, gridSize-1}; //ligne des cases de départ de chaque joueur
     const int start_y[4] = {gridSize-1, 0, 2, gridSize+1}; //colonne des cases de départ de chaque joueur
 
-    ////////////        CREATION ET INITIALISATION DU PLATEAU DE CASES ////////////
-    Square **board = create_board(boardSize, gridSize, monsters, weapons, treasures);
 
     ///////////// number_players + NB DE PLAYER + NOM PLAYER ///////////
     int count = 0;
-    int x = number_players();
-    Player players[x];
+    int n = number_players();
+    Player players[n];
     do{
         init_player(&players[count], count+1, adventurers[count], start_x[count], start_y[count]);
         printf("Bienvenue %s !\n", players[count].name);
         count++;
-    }while(count<x);
+    }while(count<n);
 
     printf("C'est parti ! Bonne chance à vous %s\u2665%s\n", C_RED, C_WHT);
 
-    ////////////        A SUPPRIMER, UNIQUEMENT POUR TESTER        ////////////
-    print_board_total(board, boardSize); //print board mais on voit toutes les cases
-    printf("\n\n");
-
-    ////////////        WIP TEST GAMEPLAY        ////////////
-    int win = 0;
-    while(win != 1) {
-        for(int j=0; j<x; j++){
-            printf("À vous de jouer %s !\n", players[j].name);
-            print_board(board, boardSize, players[j]);
-            turn(board, boardSize, gridSize, &players[j], monsters, weapons, treasures);
-            if(players[j].treasure_found == 1 && players[j].ancientWeapon_found == 1){
-                win = 1;
-                break;
-            }
-        }
-    }
-    printf("\n\n");
-    print_board_total(board, boardSize); //print board mais on voit toutes les cases
-    registerScores(players, x);
-
-    //DONNER UNE OPTION POUR RECOMMENCER UNE PARTIE AVEC LES MEMES MECS !!!
-
-    ////////////        LIBERATION DE LA MEMOIRE        ////////////
-    free_board(board, boardSize);
+    game(boardSize, gridSize, players, n, weapons, monsters, treasures);
 }
 
 void open_scores(){
