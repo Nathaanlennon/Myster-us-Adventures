@@ -181,7 +181,7 @@ void object_menu(){
                 //rien par défaut
                 break;
         }
-        tuto_menu_text();//texte récurrent
+        object_menu_text();//texte récurrent
     }
 }
 
